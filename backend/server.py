@@ -29,6 +29,7 @@ firebase_admin.initialize_app(
 db = firestore.client()
 
 
+# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "n": 10}' http://localhost:5000/gen_data
 @app.route("/gen_data", methods=["POST"])
 def gen_user_data():
     data = request.get_json()
@@ -41,6 +42,7 @@ def gen_user_data():
     return jsonify({"status": "success"})
 
 
+# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree"}' http://localhost:5000/train
 @app.route("/train", methods=["POST"])
 def train_model():
     data = request.get_json()
