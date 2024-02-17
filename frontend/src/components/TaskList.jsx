@@ -6,32 +6,53 @@ import {
     AccordionPanel,
     AccordionIcon,
     Box,
+    Drawer,
+    DrawerBody,
+    DrawerHeader,
+    DrawerOverlay,
+    DrawerContent,
+    DrawerCloseButton,
+    Button, 
+    useDisclosure, 
+    CircularProgress
 } from '@chakra-ui/react'
+import { IoMdMenu } from "react-icons/io";
+import {Link} from 'react-router-dom';
 
 const TaskList = () => {
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     return (
-        <div className="basis-1/6 h-full border-2 rounded m-2">
-        <Accordion allowToggle >
-            <AccordionItem className="m-2 border rounded">
+        <div className="">
+        <Button colorScheme='whiteAlpha' leftIcon={<IoMdMenu />} onClick={onOpen} className="font-lilitaOne absolute left-0 top-0 z-10 m-2 border-white border-2 font-indieFlower">
+            See tasks
+        </Button>
+        <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} size={'md'}>
+            <DrawerOverlay />
+            <DrawerContent>
+                <DrawerHeader className='justify-between font-lilitaOne'>Tasks <DrawerCloseButton/></DrawerHeader>
+                <DrawerBody>
+                <Accordion allowToggle >
+            <AccordionItem className="mb-2 border rounded font-lilitaOne">
                 <h2>
                     <AccordionButton>
                         <Box as="span" flex='1' textAlign='left'>
-                            Regression
+                        <CircularProgress value={100} size='25px' className="mr-2" color="green.400"/>
+                        <Link to="/lessonOne" className="hover:underline">Lesson One: Sample Size</Link>
                         </Box>
                         <AccordionIcon />
                     </AccordionButton>
                 </h2>
                 <AccordionPanel className="pb-4">
-                Regression is a statistical approach used to analyze the relationship between a dependent variable (target variable) and one or more independent variables (predictor variables). The objective is to determine the most suitable function that characterizes the connection between these variables.
-                </AccordionPanel>
+                In this lesson you'll learn why talking to more friends, or having a bigger group, helps us make better guesses about the whole town. It's like taking a peek at more ice cream preferences to discover the real favorites!                </AccordionPanel>
             </AccordionItem>
 
-            <AccordionItem className="m-2 border rounded">
+            <AccordionItem className="mb-2 border rounded font-lilitaOne">
                 <h2>
                     <AccordionButton>
                         <Box as="span" flex='1' textAlign='left'>
-                            Classification
+                        <CircularProgress value={100} size='25px' className="mr-2" color="green.400"/>
+                            Lesson Two: something
                         </Box>
                         <AccordionIcon />
                     </AccordionButton>
@@ -41,10 +62,11 @@ const TaskList = () => {
                 </AccordionPanel>
             </AccordionItem>
 
-            <AccordionItem className="m-2 border rounded">
+            <AccordionItem className="mb-2 border rounded font-lilitaOne">
                 <h2>
                     <AccordionButton>
                         <Box as="span" flex='1' textAlign='left'>
+                        <CircularProgress value={65} size='25px' className="mr-2"/>
                             Clustering
                         </Box>
                         <AccordionIcon />
@@ -55,6 +77,9 @@ const TaskList = () => {
                 </AccordionPanel>
             </AccordionItem>
         </Accordion>
+                </DrawerBody>
+            </DrawerContent>
+        </Drawer>
         </div>
     )
 };
