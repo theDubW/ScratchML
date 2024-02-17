@@ -1,9 +1,9 @@
-import { Card, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, CardFooter, Flex, Button, TableContainer, TableCaption } from '@chakra-ui/react'
+import { Card, HStack, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
 import { CSS } from '@dnd-kit/utilities';
-import {evalModel,  generateData, trainModel } from '../helpers/callEndpoint';
+import { evalModel, generateData, trainModel } from '../helpers/callEndpoint';
 
 const uid = "user_10";
 
@@ -33,7 +33,7 @@ function Data({activeFeatures}) {
     });
   }, [db]);
   let num_samples = Object.keys(data);
-  if(num_samples.length === 0){
+  if (num_samples.length === 0) {
     num_samples = 0;
   } else {
     num_samples = data[num_samples[0]].length;
@@ -54,8 +54,8 @@ function Data({activeFeatures}) {
     <Card id="data" className="w-full ml-3" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-bold'>Data</CardHeader>
       <CardBody className='text-center flex flex-col justify-end items-center'>
-        <TableContainer overflow="scroll" className='mt-0 mb-3'>
-          <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
+        <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
+        <TableContainer className='mt-0 mb-3'>
           <Table variant='simple' size="sm">
 
             <Tbody>
@@ -67,17 +67,19 @@ function Data({activeFeatures}) {
                     const values = data[key];
 
                     return (
-                      <Tr key={key}>
-                        {/* TODO add emojis */}
-                        <Td><Text fontWeight="bold">{key}</Text></Td>
-                        {
-                          values.map((value, index) => {
-                            // gen random key
-                            // const randomKey = Math.random();
-                            return <Td key={index}><Text>{value}</Text></Td>
-                          })
-                        }
-                      </Tr>
+                      <>
+                        <Tr key={key}>
+                          {/* TODO add emojis */}
+                          <Td className="sticky left-0 bg-white"><Text fontWeight="bold">{key}</Text></Td>
+                          {
+                            values.map((value, index) => {
+                              // gen random key
+                              // const randomKey = Math.random();
+                              return <Td key={index}><Text>{value}</Text></Td>
+                            })
+                          }
+                        </Tr>
+                      </>
                     );
                   }
                 })
@@ -101,7 +103,7 @@ function Model({ model }) {
   };
 
   return (
-    <Card className="w-1/3 h-full flex-grow m-10" ref={setNodeRef} style={style}>
+    <Card className="w-1/3 h-full m-1" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-bold'>Model</CardHeader>
       <CardBody className='text-center '>
         {model !== undefined ? model : <></>}
@@ -118,21 +120,76 @@ function TrainRun({model_name, features}) {
     setEvalResult(res.result);
   }
   return (
-    <Card id="trainrun" className="w-1/3 h-full m-10 relative">
+    <Card id="trainrun" className="w-2/3 h-full m-10 relative">
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
-      <CardBody className='text-center flex flex-col justify-center items-center'>
-        
-        {/* <Text className='font-bold'>Train</Text> */}
-        <Button onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
-      {/* </CardBody> */}
-      {evalResult !== null ? <Text className='mb-3 font-bold'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
-      {/* <CardBody className='text-center flex justify-center items-center'> */}
-        <Button onClick={() => evalModelPerf()}>Run Model</Button>
+      <CardBody className='text-center flex items-center h-full'>
+        <div class="absolute h-3/4 top-0">
+          <div id="visualization"></div>
+        </div>
+        <div className="absolute h-1/4 bottom-0">
+          {/* <Text className='font-bold'>Train</Text> */}
+          {evalResult !== null ? <Text className='mb-3 font-bold'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
+          <Button onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
+
+          <Button onClick={() => evalModelPerf()}>Run Model</Button>
+        </div>
       </CardBody>
+    </Card >
+  );
+}
+
+function FeedbackBar() {
+  return (
+    <Card className='m-3 h-full w-full'>
+      <CardHeader>
+        <Heading size='md'>Feedback</Heading>
+      </CardHeader>
     </Card>
   );
 }
 
+function DnDBar() {
+  return (
+    <Tabs className="w-full">
+      <TabList>
+        <Tab>Features</Tab>
+        <Tab>Model</Tab>
+        <Tab>Training</Tab>
+        <Tab>Run</Tab>
+      </TabList>
+
+      <TabPanels>
+        <TabPanel>
+          <div className="inline">
+            {featureOptions.map((feature) => {
+              return (
+                <div className="w-1/4" >
+                  <FeatureOption key={feature} type={feature} />
+                </div>
+              )
+            })}
+          </div>
+        </TabPanel>
+        <TabPanel>
+          <div className="inline">
+            {modelOptions.map((model) => {
+              return (
+                <div className="w-1/3" >
+                  <ModelOption key={model} type={model} />
+                </div>
+              )
+            })}
+          </div>
+        </TabPanel>
+        <TabPanel>
+          <p>two!</p>
+        </TabPanel>
+        <TabPanel>
+          <p>three!</p>
+        </TabPanel>
+      </TabPanels>
+    </Tabs>);
+}
 
 function ModelOption({ type }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -221,7 +278,7 @@ export function Level() {
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <h1 className='text-4xl text-center pb-10'>Fools Gold</h1>
-      <div className='w-full  h-2/3 inline-flex'>
+      <div className='w-full h-2/3 inline-flex'>
         <Box display="flex" alignItems="center" className='m-0 w-1/3'>
           <Data activeFeatures={activeFeatures}/>
         </Box>
@@ -230,18 +287,19 @@ export function Level() {
           <TrainRun model_name={model} features={activeFeatures}/>
         </Box>
       </div>
-      <Box display="flex" alignItems="center" height="30vh" width="100vw" className='m-auto'>
-        <Text>Drag a Model To Try it</Text>
-        {modelOptions.map((model) => {
-          return <ModelOption key={model} type={model} />
-        })}
-      </Box>
-      <Box display="flex" alignItems="center" height="30vh" width="100vw" className='m-auto'>
-        <Text>Select Features</Text>
+      <div className='w-full h-800 inline-flex'>
+        <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full p-10'>
+          <FeedbackBar />
+        </Box>
+        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full p-10'>
+          <DnDBar />
+          {/* <Text>Select Features</Text>
         {features.map((feature) => {
           return <FeatureOption key={feature} type={feature} />
-        })}
-      </Box>
+        })} */}
+        </Box>
+      </div>
+
 
     </DndContext>
   );
