@@ -12,7 +12,9 @@ from sklearn.neighbors import KNeighborsClassifier
 
 
 # generate data for a specific problem for the user
-def gen_data(db: Client, uid: str, problem_name: str, n: int, train: bool = True) -> None:
+def gen_data(
+    db: Client, uid: str, problem_name: str, n: int, train: bool = True
+) -> None:
     n_per_class = n // 2  # Ensure n is even for equal class distribution
 
     # Generate features
@@ -70,7 +72,9 @@ def gen_data(db: Client, uid: str, problem_name: str, n: int, train: bool = True
     )
 
 
-def train_and_upload_model(db: Client, uid: str, problem_name: str, model_type: str) -> None:
+def train_and_upload_model(
+    db: Client, uid: str, problem_name: str, model_type: str
+) -> None:
     # read firebase data
     df = one_hot_encoding(get_data(db, uid, problem_name, train=True))
     # print(df)
