@@ -125,10 +125,13 @@ function TrainRun({model_name, features}) {
       <CardBody className='text-center flex items-center h-full'>
         <div class="absolute h-3/4 top-0">
           <div id="visualization"></div>
+          
         </div>
+        {evalResult !== null ? <Text className='mb-3 font-bold text-center justify-center'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
+
         <div className="absolute h-1/4 bottom-0">
           {/* <Text className='font-bold'>Train</Text> */}
-          {evalResult !== null ? <Text className='mb-3 font-bold'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
+          
           <Button className="mr-3" onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
           <Button onClick={() => evalModelPerf()}>Run Model</Button>
         </div>
