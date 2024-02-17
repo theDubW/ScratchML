@@ -47,7 +47,7 @@ def gen_data(db: Client, uid: str, problem_name: str, n: int, train: bool = True
             "conductivity": conductivity,
             "shininess": shininess,
             "shape": shapes,
-            "color": textures,
+            "texture": textures,
         }
     )
     cur_data = get_data(db, uid, problem_name, train)
