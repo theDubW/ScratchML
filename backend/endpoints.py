@@ -1,5 +1,11 @@
 import numpy as np
 import pandas as pd
+from database_utils import get_data, one_hot_encoding, upload_model_to_storage
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+
+# from firebase_admin import Clien
 
 
 # generate data for a specific problem for the user
@@ -47,10 +53,36 @@ def gen_data(db, uid, problem_name, n):
             "color": colors,
         }
     )
+    cur_data = get_data(db, uid, problem_name)
+    new_data = pd.concat([new_data, cur_data])
 
     db_firestore = {}
     # Push data to Firebase
     for record in new_data.columns:
         db_firestore[record] = new_data[record].tolist()
     print("pushing to server")
-    db.collection("Users").document(uid).collection(problem_name).add(db_firestore)
+
+    db.collection("Users").document(uid).collection(problem_name).document("data").set(
+        db_firestore, merge=True
+    )
+
+
+def train_and_upload_model(db, uid, problem_name, model_type):
+    # read firebase data
+    df = one_hot_encoding(get_data(db, uid, problem_name))
+    # print(df)
+    X = df.drop("label", axis=1)
+    y = df["label"]
+
+    # determine model type
+    if model_type == "decision_tree":
+        model = DecisionTreeClassifier()
+    elif model_type == "logistic_regression":
+        model = LogisticRegression(max_iter=1000)
+    elif model_type == "knn":
+        model = KNeighborsClassifier()
+    else:
+        raise ValueError("Bad model type")
+    model.fit(X, y)
+
+    upload_model_to_storage(uid, problem_name, model_type, model)
