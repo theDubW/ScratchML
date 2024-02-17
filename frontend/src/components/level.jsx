@@ -122,7 +122,7 @@ function Run({model_name}){
 
 function ModelOption({type}){
   const {attributes, listeners, setNodeRef, transform} = useDraggable({
-    id: type,
+    id: type+"in-model",
   });
   const style = transform ? {
     transform: CSS.Translate.toString(transform),
@@ -162,7 +162,7 @@ function FeatureOption({type}){
 
 }
 
-const modelOptions = ["Decision Tree", "Logistic Regression", "K-Means"]
+const modelOptions = ["Decision Tree", "Logistic Regression", "K-Nearest Neighbors"]
 
 export function Level(){
   const [isDropped, setIsDropped] = useState(false);
