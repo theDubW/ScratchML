@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+from typing import Union
+from firebase_admin.firestore import Client
+from sklearn.base import BaseEstimator
 from database_utils import get_data, one_hot_encoding, upload_model_to_storage
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
@@ -9,7 +12,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 
 # generate data for a specific problem for the user
-def gen_data(db, uid, problem_name, n, train=True):
+def gen_data(db: Client, uid: str, problem_name: str, n: int, train: bool = True) -> None:
     n_per_class = n // 2  # Ensure n is even for equal class distribution
 
     # Generate features
@@ -67,7 +70,7 @@ def gen_data(db, uid, problem_name, n, train=True):
     )
 
 
-def train_and_upload_model(db, uid, problem_name, model_type):
+def train_and_upload_model(db: Client, uid: str, problem_name: str, model_type: str) -> None:
     # read firebase data
     df = one_hot_encoding(get_data(db, uid, problem_name, train=True))
     # print(df)

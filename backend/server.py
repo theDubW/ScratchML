@@ -1,11 +1,11 @@
-# Start
 import firebase_admin
-from firebase_admin import credentials, firestore, storage
+from firebase_admin import credentials, firestore
 import os
-import endpoints
+from endpoints import gen_data, train_and_upload_model
+from typing import Any
 
 
-def main():
+def main() -> None:
     # intialize firestore
     # os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:8080"
     print(os.getcwd())
@@ -25,9 +25,10 @@ def main():
     db = firestore.client()
     # bucket = storage.bucket()
 
-    endpoints.gen_data(db, "user_2", "FoolsGold", 80)
-    endpoints.gen_data(db, "user_2", "FoolsGold", 20, False)
-    endpoints.train_and_upload_model(db, "user_2", "FoolsGold", "logistic_regression")
+    gen_data(db, "user_2", "FoolsGold", 80)
+    gen_data(db, "user_2", "FoolsGold", 20, False)
+    train_and_upload_model(db, "user_2", "FoolsGold", "logistic_regression")
 
 
-main()
+if __name__ == "__main__":
+    main()
