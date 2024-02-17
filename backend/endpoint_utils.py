@@ -13,38 +13,30 @@ from sklearn.metrics import accuracy_score
 
 
 # generate data for a specific problem for the user
-def gen_data(db: Client, uid: str, problem_name: str, n: int, train: bool = True) -> None:
-    n_per_class = n // 2
+def gen_data(db: Client, uid: str, problem_name: str, n: int, train: bool = True) -> None:    
+    # relevant features
+    hardness = np.random.randint(10, 40, n)
+    density = np.random.randint(1,11, n)
+    conductivity = np.random.randint(1, 11, n)
+    textures = np.random.choice(["smooth", "rough"], size=n)
 
-    # Generate labels
-    labels = np.array([0] * n_per_class + [1] * n_per_class)
-    
-    # Generate features with overlapping and non-linear distributions
-    hardness = np.concatenate([
-        np.random.normal(5, 1.5, n_per_class) ** 2,  # Non-linear transformation
-        np.random.normal(6, 1.5, n_per_class) ** 2,
-    ]).astype(float)
-    
-    density = np.concatenate([
-        np.random.normal(7.0, 0.5, n_per_class),
-        np.random.normal(7.5, 0.5, n_per_class),
-    ]).astype(float)
-    
-    conductivity = np.concatenate([
-        np.random.normal(4.0, 0.5, n_per_class) ** 3,  # More intense non-linear transformation
-        np.random.normal(4.2, 0.5, n_per_class) ** 3,
-    ]).astype(float)
-    
-    shininess = np.concatenate([
-        np.random.normal(3.5, 0.7, n_per_class) ** 2,  # Non-linear transformation
-        np.random.normal(3.6, 0.7, n_per_class) ** 2,
-    ]).astype(float)
-
-    # Introducing a categorical feature with more choices and non-linear impact
+    # irrelevant features
+    shininess = np.random.randint(1, 11, n)
     shapes = np.random.choice(["square", "circle", "rectangle", "triangle"], size=n)
-    # Color feature with even more overlap and complex relationships
-    colors = np.random.choice(["yellow", "bronze", "gold", "silver", "copper"], size=n)
 
+    # Assign numerical values to colors based on an arbitrary property (e.g., "warmth")
+    texture_values = {"smooth": 0, "rough": 1}
+    texture_numerical = np.array([texture_values[t] for t in textures])
+
+    # Calculate condition numbers using the non-linear transformation, now including color
+    conditions = [0] * n
+    for i in range(n):
+        if hardness[i] < 25:
+            conditions[i] = hardness[i] + (10 + 5 * density[i]) * texture_numerical[i] + np.log(conductivity[i] + 1)
+        else:
+            conditions[i] = hardness[i] - (10 + 5 * density[i]) * texture_numerical[i] - np.log(conductivity[i] + 1)
+
+    labels = [1 if v > 25 else 0 for v in conditions]
 
     # Create DataFrame
     new_data = pd.DataFrame(
@@ -55,7 +47,7 @@ def gen_data(db: Client, uid: str, problem_name: str, n: int, train: bool = True
             "conductivity": conductivity,
             "shininess": shininess,
             "shape": shapes,
-            "color": colors,
+            "color": textures,
         }
     )
     cur_data = get_data(db, uid, problem_name, train)
