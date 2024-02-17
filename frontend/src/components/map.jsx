@@ -1,7 +1,7 @@
 import React from 'react';
 import PirateShip from '../pirate ship.jpg'
 import Island from '../island.png'
-import Waves from '../waves.jpg'
+import Waves from '../waves.webp'
 import {Link} from 'react-router-dom';
 import TaskList from '../components/TaskList';
 

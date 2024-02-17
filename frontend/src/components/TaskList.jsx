@@ -24,7 +24,7 @@ const TaskList = () => {
 
     return (
         <div className="">
-        <Button colorScheme='whiteAlpha' leftIcon={<IoMdMenu />} onClick={onOpen} className="font-lilitaOne absolute left-0 top-0 z-10 m-2 border-white border-2 border-b-4 font-indieFlower">
+        <Button colorScheme='blackAlpha' leftIcon={<IoMdMenu />} onClick={onOpen} className="font-lilitaOne absolute left-0 top-0 z-10 m-2 border-white border-2 border-b-4 font-indieFlower">
             See tasks
         </Button>
         <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} size={'md'}>
