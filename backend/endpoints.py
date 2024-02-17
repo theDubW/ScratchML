@@ -9,7 +9,7 @@ from sklearn.neighbors import KNeighborsClassifier
 
 
 # generate data for a specific problem for the user
-def gen_data(db, uid, problem_name, n):
+def gen_data(db, uid, problem_name, n, train=True):
     n_per_class = n // 2  # Ensure n is even for equal class distribution
 
     # Generate features
@@ -53,7 +53,7 @@ def gen_data(db, uid, problem_name, n):
             "color": colors,
         }
     )
-    cur_data = get_data(db, uid, problem_name)
+    cur_data = get_data(db, uid, problem_name, train)
     new_data = pd.concat([new_data, cur_data])
 
     db_firestore = {}
@@ -61,15 +61,15 @@ def gen_data(db, uid, problem_name, n):
     for record in new_data.columns:
         db_firestore[record] = new_data[record].tolist()
     print("pushing to server")
-
-    db.collection("Users").document(uid).collection(problem_name).document("data").set(
+    docName = "train" if train else "test"
+    db.collection("Users").document(uid).collection(problem_name).document(docName).set(
         db_firestore, merge=True
     )
 
 
 def train_and_upload_model(db, uid, problem_name, model_type):
     # read firebase data
-    df = one_hot_encoding(get_data(db, uid, problem_name))
+    df = one_hot_encoding(get_data(db, uid, problem_name, train=True))
     # print(df)
     X = df.drop("label", axis=1)
     y = df["label"]

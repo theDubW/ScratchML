@@ -19,17 +19,25 @@ def one_hot_encoding(df: pd.DataFrame):
 
 
 # return pandas df with one hot encoding from firestore db
-def get_data(db, uid, problem_name):
+def get_data(db, uid: str, problem_name: str, train: bool):
     # data_stream = db.collection("Users").document(uid).collection(problem_name).stream()
-    data_stream = db.collection("Users").document(uid).collection(problem_name).stream()
+    docName = "train" if train else "test"
+    docRef = (
+        db.collection("Users").document(uid).collection(problem_name).document(docName)
+    )
+    doc = docRef.get()
+    # assert doc.exists
     # assert len(data_stream) == 1
-    for doc in data_stream:
-
-        # print(dir(item))
+    # if(doc.name)
+    # print(dir(item))
+    # break
+    if doc.exists:
         item_dict = doc.to_dict()
         df = pd.DataFrame.from_dict(item_dict)
         return df
-        # print(df)
+    else:
+        return pd.DataFrame()
+    # print(df)
 
 
 def upload_model_to_storage(uid, problem_name, model_type, model):

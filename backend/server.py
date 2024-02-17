@@ -25,7 +25,8 @@ def main():
     db = firestore.client()
     # bucket = storage.bucket()
 
-    endpoints.gen_data(db, "user_2", "FoolsGold", 100)
+    endpoints.gen_data(db, "user_2", "FoolsGold", 80)
+    endpoints.gen_data(db, "user_2", "FoolsGold", 20, False)
     endpoints.train_and_upload_model(db, "user_2", "FoolsGold", "logistic_regression")
 
 
