@@ -1,16 +1,23 @@
 import './App.css';
-import TaskList from './components/TaskList'
-import Map from './components/map'
 import { ChakraProvider, } from '@chakra-ui/react'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import LandingPage from './views/landing_page';
+import lessonOne from './views/lesson_one';
+import './firebase/init'
+
+import {Card} from './components/dnd/DndElements'
+import { Level } from './components/level';
+// import Card from
 
 function App() {
   return (
+    <Router>
     <ChakraProvider>
-      <div className='flex flex-row p-5'>
-        <TaskList className="h-screen"/>
-        <Map className="h-screen border-black"/>
-      </div>
+      {/* <TaskList /> */}
+      {/* <Card /> */}
+      <Level />
     </ChakraProvider>
+    </Router>
   );
 }
 
