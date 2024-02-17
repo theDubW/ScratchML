@@ -39,7 +39,7 @@ function Data() {
     num_samples = data[num_samples[0]].length;
   }
   return (
-    <Card id="data" className="w-full ml-3">
+    <Card id="data" className="w-1/3 ml-3">
       <CardHeader className='text-center font-bold'>Data</CardHeader>
       <CardBody className='text-center flex flex-col justify-end items-center'>
         <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
@@ -102,7 +102,7 @@ function Model({ model }) {
 function TrainRun() {
 
   return (
-    <Card id="trainrun" className="w-2/3 h-full m-10 relative">
+    <Card id="trainrun" className="w-1/3 h-full relative">
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
       <CardBody className='text-center flex items-center h-full'>
         <div class="absolute h-3/4 top-0">
@@ -241,10 +241,8 @@ export function Level() {
     <DndContext onDragEnd={handleDragEnd}>
       <h1 className='text-4xl text-center pb-10'>Fools Gold</h1>
       <div className='w-full h-2/3 inline-flex'>
-        <Box display="flex" alignItems="center" className='m-0 w-1/3'>
+        <Box display="flex" alignItems="center" className='m-0 w-full'>
           <Data />
-        </Box>
-        <Box display="flex" alignItems="center" className='m-0 w-2/3'>
           <Model model={isDropped ? <ModelOption type={activeId}></ModelOption> : undefined} />
           <TrainRun />
         </Box>
