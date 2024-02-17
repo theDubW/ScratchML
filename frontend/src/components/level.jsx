@@ -178,10 +178,10 @@ export function Level() {
     <DndContext onDragEnd={handleDragEnd}>
       <h1 className='text-4xl text-center pb-10'>Fools Gold</h1>
       <div className='w-full  h-2/3 inline-flex'>
-        <Box display="flex" alignItems="center" className='m-0 w-3/5'>
+        <Box display="flex" alignItems="center" className='m-0 w-1/3'>
           <Data />
         </Box>
-        <Box display="flex" alignItems="center" className='m-0 w-2/5'>
+        <Box display="flex" alignItems="center" className='m-0 w-1/2'>
           <Model model={isDropped ? <ModelOption type={activeId}></ModelOption> : undefined} />
           <TrainRun />
         </Box>
