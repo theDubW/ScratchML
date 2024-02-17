@@ -39,27 +39,31 @@ def gen_user_data():
     gen_data(db, uid, problem_name, n, False)
     return jsonify({"status": "success"})
 
-# Invoke-WebRequest -Uri http://localhost:5000/train -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree"}'
-# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree"}' http://localhost:5000/train
+# Invoke-WebRequest -Uri http://localhost:5000/train -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "color"]}'
+# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "color"]}' http://localhost:5000/train
 @app.route("/train", methods=["POST"])
 def train_model():
     data = request.get_json()
     uid = data["uid"]
     problem_name = data["problem_name"]
     model_name = data["model_name"]
-    train_and_upload_model(db, uid, problem_name, model_name)
+    features = data["features"]
+
+    train_and_upload_model(db, uid, problem_name, model_name, features)
     return jsonify({"status": "success"})
 
-# Invoke-WebRequest -Uri http://localhost:5000/evaluate -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree"}'
-# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree"}' http://localhost:5000/evaluate
+# Invoke-WebRequest -Uri http://localhost:5000/evaluate -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "color"]}'
+# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "color"]}' http://localhost:5000/evaluate
+
 @app.route("/evaluate", methods=["POST"])
 def evaluate_user_model():
     data = request.get_json()
     uid = data["uid"]
     problem_name = data["problem_name"]
     model_name = data["model_name"]
+    features = data["features"]
     
-    evaluation_results = evaluate_model(db, uid, problem_name, model_name)
+    evaluation_results = evaluate_model(db, uid, problem_name, model_name, features)
     print(evaluation_results)
     return jsonify({"status": "success"})
 
