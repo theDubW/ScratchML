@@ -12,7 +12,6 @@ def one_hot_encoding(df: pd.DataFrame) -> pd.DataFrame:
     cat_columns = df.select_dtypes(include=["object"]).columns
     for col in cat_columns:
         dummies = pd.get_dummies(df[col], prefix=col)
-
         df = df.drop(col, axis=1)
 
         df = pd.concat([df, dummies], axis=1)
