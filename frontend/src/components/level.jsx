@@ -42,7 +42,7 @@ function Data() {
     <Card id="data" className="w-full ml-3">
       <CardHeader className='text-center font-bold'>Data</CardHeader>
       <CardBody className='text-center flex flex-col justify-end items-center'>
-      <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
+        <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
         <TableContainer className='mt-0 mb-3'>
           <Table variant='simple' size="sm">
 
@@ -55,17 +55,17 @@ function Data() {
 
                     return (
                       <>
-                      <Tr key={key}>
-                        {/* TODO add emojis */}
-                        <Td className="sticky left-0 bg-white"><Text fontWeight="bold">{key}</Text></Td>
-                        {
-                          values.map((value, index) => {
-                            // gen random key
-                            // const randomKey = Math.random();
-                            return <Td key={index}><Text>{value}</Text></Td>
-                          })
-                        }
-                      </Tr>
+                        <Tr key={key}>
+                          {/* TODO add emojis */}
+                          <Td className="sticky left-0 bg-white"><Text fontWeight="bold">{key}</Text></Td>
+                          {
+                            values.map((value, index) => {
+                              // gen random key
+                              // const randomKey = Math.random();
+                              return <Td key={index}><Text>{value}</Text></Td>
+                            })
+                          }
+                        </Tr>
                       </>
                     );
                   }
@@ -104,13 +104,16 @@ function TrainRun() {
   return (
     <Card id="trainrun" className="w-2/3 h-full m-10 relative">
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
-      <div className="absolute bottom-0">
-        <CardBody className='text-center flex items-center'>
+      <CardBody className='text-center flex items-center h-full'>
+        <div class="absolute h-3/4 top-0">
+
+        </div>
+        <div className="absolute h-1/4 bottom-0">
           {/* <Text className='font-bold'>Train</Text> */}
           <Button>Train Model</Button>
           <Button className='m-10'>Run Model</Button>
-        </CardBody>
-      </div>
+        </div>
+      </CardBody>
     </Card >
   );
 }
