@@ -13,39 +13,38 @@ from sklearn.metrics import accuracy_score
 
 
 # generate data for a specific problem for the user
-def gen_data(
-    db: Client, uid: str, problem_name: str, n: int, train: bool = True
-) -> None:
-    n_per_class = n // 2  # Ensure n is even for equal class distribution
+def gen_data(db: Client, uid: str, problem_name: str, n: int, train: bool = True) -> None:
+    n_per_class = n // 2
 
-    # Generate features
+    # Generate labels
     labels = np.array([0] * n_per_class + [1] * n_per_class)
-    hardness = np.concatenate(
-        [
-            np.random.randint(3, 6, n_per_class),  # Softer for gold
-            np.random.randint(1, 4, n_per_class),  # Harder for pyrite
-        ]
-    )
-    density = np.concatenate(
-        [
-            np.random.uniform(4, 6, n_per_class),  # Closer to pyrite
-            np.random.uniform(18, 20, n_per_class),  # Closer to gold
-        ]
-    )
-    conductivity = np.concatenate(
-        [
-            np.random.randint(1, 4, n_per_class),  # Higher for gold
-            np.random.randint(3, 6, n_per_class),  # Lower for pyrite
-        ]
-    )
-    shininess = np.concatenate(
-        [
-            np.random.randint(3, 6, n_per_class),  # More shiny for gold
-            np.random.randint(1, 3, n_per_class),  # Less shiny for pyrite
-        ]
-    )
-    shapes = np.random.choice(["square", "circle", "rectangle"], size=n)
-    colors = np.random.choice(["yellow", "bronze yellow", "silver yellow"], size=n)
+    
+    # Generate features with overlapping and non-linear distributions
+    hardness = np.concatenate([
+        np.random.normal(5, 1.5, n_per_class) ** 2,  # Non-linear transformation
+        np.random.normal(6, 1.5, n_per_class) ** 2,
+    ]).astype(float)
+    
+    density = np.concatenate([
+        np.random.normal(7.0, 0.5, n_per_class),
+        np.random.normal(7.5, 0.5, n_per_class),
+    ]).astype(float)
+    
+    conductivity = np.concatenate([
+        np.random.normal(4.0, 0.5, n_per_class) ** 3,  # More intense non-linear transformation
+        np.random.normal(4.2, 0.5, n_per_class) ** 3,
+    ]).astype(float)
+    
+    shininess = np.concatenate([
+        np.random.normal(3.5, 0.7, n_per_class) ** 2,  # Non-linear transformation
+        np.random.normal(3.6, 0.7, n_per_class) ** 2,
+    ]).astype(float)
+
+    # Introducing a categorical feature with more choices and non-linear impact
+    shapes = np.random.choice(["square", "circle", "rectangle", "triangle"], size=n)
+    # Color feature with even more overlap and complex relationships
+    colors = np.random.choice(["yellow", "bronze", "gold", "silver", "copper"], size=n)
+
 
     # Create DataFrame
     new_data = pd.DataFrame(
