@@ -28,7 +28,7 @@ def get_data(db: Client, uid: str, problem_name: str, train: bool) -> pd.DataFra
         db.collection("Users").document(uid).collection(problem_name).document(docName)
     )
     doc = docRef.get()
-
+    print(f"Getting data for {uid} {problem_name} {docName}")
     if doc.exists:
         item_dict = doc.to_dict()
         df = pd.DataFrame.from_dict(item_dict)

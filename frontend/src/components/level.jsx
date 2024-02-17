@@ -44,8 +44,12 @@ function Data({activeFeatures}) {
   const style = {
     color: isOver ? 'green' : undefined,
   };
-  console.log(activeFeatures);
+  // console.log(activeFeatures);
   console.log(Object.keys(data));
+  const keys = Object.keys(data);
+  // if(keys.length === 0){
+  //   keys = activeFeatures;
+  // }
   return (
     <Card id="data" className="w-full ml-3" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-bold'>Data</CardHeader>
@@ -57,7 +61,7 @@ function Data({activeFeatures}) {
             <Tbody>
               {
                 Object.keys(data).map((key) => {
-                  console.log("checking if " + key + " is in " + activeFeatures + " " + activeFeatures.includes(key.toLocaleLowerCase()));
+                  // console.log("checking if " + key + " is in " + activeFeatures + " " + activeFeatures.includes(key.toLocaleLowerCase()));
                   if (key !== "label" && activeFeatures.includes(key)) {
 
                     const values = data[key];
@@ -82,7 +86,7 @@ function Data({activeFeatures}) {
           </Table>
 
         </TableContainer>
-        <Button onClick={generateData(uid, "FoolsGold", 10)}>Generate Data</Button>
+        <Button onClick={() => generateData(uid, "FoolsGold", 10, activeFeatures)}>Generate Data</Button>
       </CardBody>
     </Card>
   );
@@ -106,17 +110,24 @@ function Model({ model }) {
   );
 }
 
-function TrainRun() {
-
+function TrainRun({model_name, features}) {
+  const [evalResult, setEvalResult] = useState(null);
+  const evalModelPerf = async () => {
+    const res = await evalModel(uid, "FoolsGold", model_name, features);
+    console.log(res);
+    setEvalResult(res.result);
+  }
   return (
     <Card id="trainrun" className="w-1/3 h-full m-10 relative">
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
-      <CardBody className='text-center flex justify-center items-center'>
+      <CardBody className='text-center flex flex-col justify-center items-center'>
+        
         {/* <Text className='font-bold'>Train</Text> */}
-        <Button>Train Model</Button>
-      </CardBody>
-      <CardBody className='text-center flex justify-center items-center'>
-        <Button className=''>Run Model</Button>
+        <Button onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
+      {/* </CardBody> */}
+      {evalResult !== null ? <Text className='mb-3 font-bold'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
+      {/* <CardBody className='text-center flex justify-center items-center'> */}
+        <Button onClick={() => evalModelPerf()}>Run Model</Button>
       </CardBody>
     </Card>
   );
@@ -164,9 +175,16 @@ function FeatureOption({ type }) {
   );
 
 }
+            // "label": labels,
+            // "hardness": hardness,
+            // "density": density,
+            // "conductivity": conductivity,
+            // "shininess": shininess,
+            // "shape": shapes,
+            // "texture": textures,
 
 const modelOptions = ["Decision Tree", "Logistic Regression", "K-Nearest Neighbors"]
-const features = ["Shape", "Color", "Density", "Hardness", "Conductivity", "Shininess"]
+const features = ["Conductivity", "Density", "Hardness", "Shape", "Shininess", "Texture"]
 
 export function Level() {
   const [isDroppedModel, setIsDroppedModel] = useState(false);
@@ -209,7 +227,7 @@ export function Level() {
         </Box>
         <Box display="flex" alignItems="center" className='m-0 w-1/2'>
           <Model model={isDroppedModel ? <ModelOption type={activeModelId}></ModelOption> : undefined} />
-          <TrainRun />
+          <TrainRun model_name={model} features={activeFeatures}/>
         </Box>
       </div>
       <Box display="flex" alignItems="center" height="30vh" width="100vw" className='m-auto'>

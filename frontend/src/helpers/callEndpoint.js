@@ -22,12 +22,13 @@ export function generateData(uid, problemName, n){
   // console.log("DONE WITH CALLING ENDPOINT");
 }
 
-export function trainModel(uid, problem_name, modelName){
+export function trainModel(uid, problem_name, modelName, features){
   // console.log("CALLING ENDPOINT");
   const data = {
     "uid": uid,
     "problem_name": problem_name,
-    "model_name": modelName
+    "model_name": modelName,
+    "features": features,
   }
   fetch('http://localhost:5000/train', {
     method: 'POST',
@@ -37,28 +38,26 @@ export function trainModel(uid, problem_name, modelName){
     body: JSON.stringify(data),
   })
   .then(response => response.json())
-  .then(data => console.log(data))
   .catch((error) => {
     console.error('Error:', error);
   });
-  console.log("DONE WITH CALLING ENDPOINT");
+  // console.log("DONE WITH CALLING ENDPOINT");
 }
 
-export function evalModel(uid, problem_name, modelName){
+export async function evalModel(uid, problem_name, modelName, features){
   const data = {
     "uid": uid,
     "problem_name": problem_name,
-    "model_name": modelName
+    "model_name": modelName,
+    "features": features,
   }
-  fetch('http://localhost:5000/evaluate', {
+  const res = await fetch('http://localhost:5000/evaluate', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
-  }).then(response => response.json())
-  .then(data => console.log(data))
-  .catch((error) => {
-    console.error('Error:', error);
   });
+  const json = await res.json();
+  return json;
 }

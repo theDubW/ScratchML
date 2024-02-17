@@ -56,7 +56,7 @@ def train_model():
     print(data)
     uid = data["uid"]
     problem_name = data["problem_name"]
-    model_name = data["model_name"]
+    model_name = user_model_to_model_name(data["model_name"])
     features = data["features"]
 
     train_and_upload_model(db, uid, problem_name, model_name, features)
@@ -72,12 +72,12 @@ def evaluate_user_model():
     data = request.get_json()
     uid = data["uid"]
     problem_name = data["problem_name"]
-    model_name = data["model_name"]
+    model_name = user_model_to_model_name(data["model_name"])
     features = data["features"]
 
     evaluation_results = evaluate_model(db, uid, problem_name, model_name, features)
     print(evaluation_results)
-    return jsonify({"status": "success"})
+    return jsonify({"status": "success", "result": evaluation_results})
 
 
 # bucket = storage.bucket()

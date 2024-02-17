@@ -6,16 +6,23 @@ import lessonOne from './views/lesson_one';
 import { Button, Stack, ButtonGroup, Text} from '@chakra-ui/react'
 import { IoMdSettings, IoMdPerson } from "react-icons/io";
 import { Heading } from '@chakra-ui/react'
+import { extendTheme } from '@chakra-ui/react'
 import './firebase/init'
-
+import '@fontsource/lilita-one';
 import {Card} from './components/dnd/DndElements'
 import { Level } from './components/level';
 // import Card from
 
 function App() {
+  const theme = extendTheme({
+    fonts: {
+      heading: `'Lilita One', sans-serif`,
+      // body: `'Lilita One', sans-serif`,
+    },
+  })
   return (
     <Router>
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
     <Stack direction='row' spacing={4} className="p-4 justify-between border-b">
     <Heading><Link to="/" className="font-lilitaOne">ScratchML</Link></Heading>
     <ButtonGroup spacing={4}>
