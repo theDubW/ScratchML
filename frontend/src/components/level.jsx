@@ -3,6 +3,7 @@ import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import {getFirestore, onSnapshot,collection, doc} from "firebase/firestore";
 import {CSS} from '@dnd-kit/utilities';
+import {generateData} from '../helpers/callEndpoint';
 
 const uid = "user_10";
 function Data(){
@@ -24,42 +25,48 @@ function Data(){
         //   id: doc.id,
         //   ...doc.data()
         // }));
-        // setData(data);
+        setData(data);
         // console.log(docData);
       }
 
     });
   }, []);
   return (
-    <Card className="w-full flex-grow h-2/3 m-10">
+    <Card className="w-full h-2/3 ml-3">
       <CardHeader className='text-center font-bold'>Data</CardHeader>
         <CardBody className='text-center flex flex-col justify-end items-center'>
-          <TableContainer>
-            <Table variant='simple'>
-              <TableCaption>Gold v. Fool's Gold Properties</TableCaption>
-              <Thead>
-                <Tr>
-                  <Th>Color</Th>
-                  <Th isNumeric>Hardness</Th>
-                  <Th >Shape</Th>
-                  <Th> Shininess</Th>
-                  <Th>Weight</Th>
-
-                </Tr>
-              </Thead>
+          <TableContainer overflow="scroll" className='mt-0 mb-3'>
+            <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
+            <Table variant='simple' size="sm">
+              
               <Tbody>
-                <Tr>
-                  <Td>Yellow</Td>
-                  <Td isNumeric>3</Td>
-                  <Td>Round</Td>
-                  <Td>Shiny</Td>
-                  <Td>5</Td>
-                </Tr>
+              {
+                Object.keys(data).map((key) => {
+                  if(key !== "label"){
+                    
+                    const values = data[key];
+
+                    return (
+                      <Tr key={key}>
+                        {/* TODO add emojis */}
+                        <Td><Text fontWeight="bold">{key}</Text></Td>
+                        {
+                          values.map((value, index) => {
+                            // gen random key
+                            // const randomKey = Math.random();
+                            return <Td key={index}><Text>{value}</Text></Td>
+                          })
+                        }
+                      </Tr>
+                    );
+                  }
+                })
+              }
               </Tbody>
             </Table>
 
           </TableContainer>
-          <Button>Generate Data</Button>
+          <Button onClick={generateData(uid, "FoolsGold", 10)}>Generate Data</Button>
         </CardBody>
     </Card>
   );
