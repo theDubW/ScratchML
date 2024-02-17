@@ -1,51 +1,33 @@
-import React, { useState } from 'react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-import "./DndElements.scss";
+import React, {useState} from 'react';
+import {DndContext} from '@dnd-kit/core';
 
-/**
- * Your Component
- */
-
-
+import {Droppable} from './Droppable';
+import {Draggable} from './Draggable';
 const droppables = [
     { id: "data" },
     { id: "model" },
     { id: "training" },
     { id: "run" },
-]
+];
 
 
-// {(provided) => (
-//     <ul class="dropList" ref={provided.innerRef} {...provided.droppableProps}>
-//         {droppables.map(({ id }, index) => {
-//             console.log(id);
-//             return (
-//                 <Draggable key={id} draggableId={id} index={index}>
-//                     {(provided) => (
-//                         <li key={id} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-//                             <div>
-//                                 {id}
-//                             </div>
-//                         </li>)}
-//                 </Draggable>
-//             );
-//         })}
-//         {provided.placeholder}
-//     </ul>
-// )}
-const Card = () => {
-
-    return (
-        <DragDropContext>
-            <Droppable key="droppable" droppableId="droppable">
-                {(provided, snapshot) =>
-                    <Draggable key="id" draggableId="id">
-                        <p>Drag Me</p>
-                    </Draggable>
-                }
-            </Droppable>
-        </DragDropContext>
-    )
-};
-
-export default Card;
+export function Card(){
+  const [isDropped, setIsDropped] = useState(false);
+  const draggableMarkup = (
+    <Draggable>Drag me</Draggable>
+  );
+  
+  return (
+    <DndContext onDragEnd={handleDragEnd}>
+      {!isDropped ? draggableMarkup : null}
+      <Droppable>
+        {isDropped ? draggableMarkup : 'Drop here'}
+      </Droppable>
+    </DndContext>
+  );
+  function handleDragEnd(event) {
+    if (event.over && event.over.id === 'droppable') {
+      setIsDropped(true);
+    }
+  }
+}
