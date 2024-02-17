@@ -129,8 +129,7 @@ function TrainRun({model_name, features}) {
         <div className="absolute h-1/4 bottom-0">
           {/* <Text className='font-bold'>Train</Text> */}
           {evalResult !== null ? <Text className='mb-3 font-bold'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
-          <Button onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
-
+          <Button className="mr-3" onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
           <Button onClick={() => evalModelPerf()}>Run Model</Button>
         </div>
       </CardBody>
@@ -161,7 +160,7 @@ function DnDBar() {
       <TabPanels>
         <TabPanel>
           <div className="inline">
-            {featureOptions.map((feature) => {
+            {features.map((feature) => {
               return (
                 <div className="w-1/4" >
                   <FeatureOption key={feature} type={feature} />
