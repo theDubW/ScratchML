@@ -11,14 +11,14 @@ function App() {
   return (
     <Router>
     <ChakraProvider>
-    <Stack direction='row' spacing={4} className="p-4 justify-between bg-blue-200">
-    <Heading><Link to="/">ScratchML</Link></Heading>
+    <Stack direction='row' spacing={4} className="p-4 justify-between border-b">
+    <Heading><Link to="/" className="font-lilitaOne">ScratchML</Link></Heading>
     <ButtonGroup spacing={4}>
-      <Button leftIcon={ <IoMdPerson/> } colorScheme='blue' variant='solid'>
-        Account
+      <Button leftIcon={ <IoMdPerson/> } colorScheme='white'className="hover:bg-gray-300" variant='solid'>
+        <text className="text-blue-800 font-lilitaOne">Account</text>
       </Button>
-      <Button leftIcon={ <IoMdSettings /> } colorScheme='gray' variant='solid'>
-        Settings
+      <Button leftIcon={<IoMdSettings />}colorScheme='white' className="hover:bg-gray-300 border-" variant='solid'>
+        <text className="text-blue-800 font-lilitaOne">Settings</text>
       </Button>
       </ButtonGroup>
     </Stack>

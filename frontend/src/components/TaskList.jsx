@@ -24,16 +24,16 @@ const TaskList = () => {
 
     return (
         <div className="">
-        <Button colorScheme='whiteAlpha' leftIcon={<IoMdMenu />} onClick={onOpen} className="absolute left-0 top-0 z-10 m-2 border-white border-2">
+        <Button colorScheme='whiteAlpha' leftIcon={<IoMdMenu />} onClick={onOpen} className="font-lilitaOne absolute left-0 top-0 z-10 m-2 border-white border-2 font-indieFlower">
             See tasks
         </Button>
         <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} size={'md'}>
             <DrawerOverlay />
             <DrawerContent>
-                <DrawerHeader borderBottomWidth='1px justify-between'>Tasks <DrawerCloseButton/></DrawerHeader>
+                <DrawerHeader className='justify-between font-lilitaOne'>Tasks <DrawerCloseButton/></DrawerHeader>
                 <DrawerBody>
                 <Accordion allowToggle >
-            <AccordionItem className="mb-2 border rounded">
+            <AccordionItem className="mb-2 border rounded font-lilitaOne">
                 <h2>
                     <AccordionButton>
                         <Box as="span" flex='1' textAlign='left'>
@@ -47,7 +47,7 @@ const TaskList = () => {
                 In this lesson you'll learn why talking to more friends, or having a bigger group, helps us make better guesses about the whole town. It's like taking a peek at more ice cream preferences to discover the real favorites!                </AccordionPanel>
             </AccordionItem>
 
-            <AccordionItem className="mb-2 border rounded">
+            <AccordionItem className="mb-2 border rounded font-lilitaOne">
                 <h2>
                     <AccordionButton>
                         <Box as="span" flex='1' textAlign='left'>
@@ -62,7 +62,7 @@ const TaskList = () => {
                 </AccordionPanel>
             </AccordionItem>
 
-            <AccordionItem className="mb-2 border rounded">
+            <AccordionItem className="mb-2 border rounded font-lilitaOne">
                 <h2>
                     <AccordionButton>
                         <Box as="span" flex='1' textAlign='left'>
