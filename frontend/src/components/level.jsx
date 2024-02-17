@@ -1,9 +1,9 @@
-import { Card, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, CardFooter, Flex, Button, TableContainer, TableCaption } from '@chakra-ui/react'
+import { Card, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, CardFooter, Flex, Button, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
 import { CSS } from '@dnd-kit/utilities';
-import {evalModel,  generateData, trainModel } from '../helpers/callEndpoint';
+import { evalModel, generateData, trainModel } from '../helpers/callEndpoint';
 
 const uid = "user_10";
 
@@ -33,7 +33,7 @@ function Data() {
     });
   }, [db]);
   let num_samples = Object.keys(data);
-  if(num_samples.length === 0){
+  if (num_samples.length === 0) {
     num_samples = 0;
   } else {
     num_samples = data[num_samples[0]].length;
@@ -100,7 +100,7 @@ function Model({ model }) {
 function TrainRun() {
 
   return (
-    <Card id="trainrun" className="w-1/3 h-full m-10 relative">
+    <Card id="trainrun" className="w-2/3 h-full m-10 relative">
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
       <CardBody className='text-center flex justify-center items-center'>
         {/* <Text className='font-bold'>Train</Text> */}
@@ -113,6 +113,48 @@ function TrainRun() {
   );
 }
 
+function DnDBar() {
+  return (
+    <Tabs className="w-full">
+      <TabList>
+        <Tab>Features</Tab>
+        <Tab>Model</Tab>
+        <Tab>Training</Tab>
+        <Tab>Run</Tab>
+      </TabList>
+
+      <TabPanels>
+        <TabPanel>
+          <div className="inline">
+            {featureOptions.map((feature) => {
+              return (
+                <div className="w-1/8" >
+                  <FeatureOption key={feature} type={feature} />
+                </div>
+              )
+            })}
+          </div>
+        </TabPanel>
+        <TabPanel>
+          <div className="inline">
+            {modelOptions.map((model) => {
+              return (
+                <div className="w-1/3" >
+                  <ModelOption key={model} type={model} />
+                </div>
+              )
+            })}
+          </div>
+        </TabPanel>
+        <TabPanel>
+          <p>two!</p>
+        </TabPanel>
+        <TabPanel>
+          <p>three!</p>
+        </TabPanel>
+      </TabPanels>
+    </Tabs>);
+}
 
 function ModelOption({ type }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -156,7 +198,8 @@ function FeatureOption({ type }) {
 
 }
 
-const modelOptions = ["Decision Tree", "Logistic Regression", "K-Nearest Neighbors"]
+const modelOptions = ["Decision Tree", "Logistic Regression", "K-Nearest Neighbors"];
+const featureOptions = ["Shape", "Texture", "Density", "Hardness", "Conductivity", "Shininess", "Hardness"];
 
 export function Level() {
   const [isDropped, setIsDropped] = useState(false);
@@ -170,28 +213,30 @@ export function Level() {
     }
   }
   useEffect(() => {
-    if(activeId !== null){
+    if (activeId !== null) {
       setModel(activeId);
     }
   }, [activeId]);
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <h1 className='text-4xl text-center pb-10'>Fools Gold</h1>
-      <div className='w-full  h-2/3 inline-flex'>
+      <div className='w-full h-2/3 inline-flex'>
         <Box display="flex" alignItems="center" className='m-0 w-1/3'>
           <Data />
         </Box>
-        <Box display="flex" alignItems="center" className='m-0 w-1/2'>
+        <Box display="flex" alignItems="center" className='m-0 w-2/3'>
           <Model model={isDropped ? <ModelOption type={activeId}></ModelOption> : undefined} />
           <TrainRun />
         </Box>
       </div>
-      <Box display="flex" alignItems="center" height="30vh" width="100vw" className='m-auto'>
-        <Text>Drag a Model To Try it</Text>
-        {modelOptions.map((model) => {
-          return <ModelOption key={model} type={model} />
-        })}
-      </Box>
+      <div className='w-full h-1/3 inline-flex'>
+        <Box display="flex" alignItems="center" className='m-0 w-1/3'>
+        </Box>
+        <Box display="flex" alignItems="center" className='m-0 w-2/3 p-10'>
+          <DnDBar />
+        </Box>
+      </div>
+
 
     </DndContext>
   );
