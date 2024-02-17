@@ -1,5 +1,5 @@
 from io import BytesIO
-from joblib import dump
+from joblib import dump, load
 import pandas as pd
 from firebase_admin import storage
 from firebase_admin.firestore import Client
@@ -47,4 +47,14 @@ def upload_model_to_storage(uid: str, problem_name: str, model_type: str, model:
     buffer.seek(0)
     blob.upload_from_string(buffer.getvalue(), content_type="application/octet-stream")
     buffer.close()
-    # blob.make
+
+
+def download_model_from_storage(uid: str, problem_name: str, model_type: str) -> BaseEstimator:
+    bucket = storage.bucket()
+    blob = bucket.blob(f"models/{uid}/{problem_name}/{model_type}.joblib")
+    buffer = BytesIO()
+    blob.download_to_file(buffer)
+    buffer.seek(0)
+    model = load(buffer)
+    buffer.close()
+    return model
