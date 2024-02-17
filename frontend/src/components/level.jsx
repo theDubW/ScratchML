@@ -106,7 +106,7 @@ function TrainRun() {
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
       <CardBody className='text-center flex items-center h-full'>
         <div class="absolute h-3/4 top-0">
-
+          <div id="visualization"></div>
         </div>
         <div className="absolute h-1/4 bottom-0">
           {/* <Text className='font-bold'>Train</Text> */}
