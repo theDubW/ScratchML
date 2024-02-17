@@ -11,7 +11,7 @@ import {
 const TaskList = () => {
 
     return (
-        <div className="basis-2/5 h-full border-2 rounded m-2">
+        <div className="basis-1/6 h-full border-2 rounded m-2">
         <Accordion allowToggle >
             <AccordionItem className="m-2 border rounded">
                 <h2>
