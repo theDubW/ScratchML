@@ -21,7 +21,7 @@ function Data({activeFeatures}) {
         for (const key in docData) {
           data[key] = docData[key];
         }
-        console.log(data);
+        // console.log(data);
         // const data = snapshot.docs.map((doc) => ({
         //   id: doc.id,
         //   ...doc.data()
@@ -45,7 +45,7 @@ function Data({activeFeatures}) {
     color: isOver ? 'green' : undefined,
   };
   // console.log(activeFeatures);
-  console.log(Object.keys(data));
+  // console.log(Object.keys(data));
   const keys = Object.keys(data);
   // if(keys.length === 0){
   //   keys = activeFeatures;
@@ -65,9 +65,8 @@ function Data({activeFeatures}) {
                   if (key !== "label" && activeFeatures.includes(key)) {
 
                     const values = data[key];
-
+                    // console.log(key);
                     return (
-                      <>
                         <Tr key={key}>
                           {/* TODO add emojis */}
                           <Td className="sticky left-0 bg-white"><Text fontWeight="bold">{key}</Text></Td>
@@ -79,7 +78,6 @@ function Data({activeFeatures}) {
                             })
                           }
                         </Tr>
-                      </>
                     );
                   }
                 })
@@ -123,7 +121,7 @@ function TrainRun({model_name, features}) {
     <Card id="trainrun" className="w-2/3 h-full m-10 relative">
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
       <CardBody className='text-center flex items-center h-full'>
-        <div class="absolute h-3/4 top-0">
+        <div className="absolute h-3/4 top-0">
           <div id="visualization"></div>
           
         </div>
@@ -168,9 +166,10 @@ function DnDBar() {
       <TabPanels>
         <TabPanel>
           <div className="grid grid-cols-4 gap-4">
-            {featureOptions.map((feature) => {
+            {features.map((feature) => {
+              // console.log("feature:", feature)
               return (
-                <div className="w-full" >
+                <div key={feature} className="w-full" >
                   <FeatureOption key={feature} type={feature} />
                 </div>
               )
@@ -180,10 +179,11 @@ function DnDBar() {
         <TabPanel>
           <div className="grid grid-cols-3 gap-4">
             {modelOptions.map((model) => {
+              // console.log("model:", model)
               return (
-                <div className="w-full" >
+                // <div key={model} className="w-full" >
                   <ModelOption key={model} type={model} />
-                </div>
+                // </div>
               )
             })}
           </div>
@@ -270,13 +270,15 @@ export function Level() {
     }
   }
   useEffect(() => {
+    console.log("in active model use effect")
     if(activeModelId !== null){
       setModel(activeModelId);
     }
   }, [activeModelId]);
   useEffect(() => {
+    console.log("UPDATING ACTIVE FEATURES");
     if(activeFeatureId !== null){
-      console.log("UPDATING ACTIVE FEATURES");
+      
       // console.log(activeFeatureId);
       // setActiveFeatureId(activeFeatureId);
       setActiveFeatures([...activeFeatures, activeFeatureId]);
