@@ -1,4 +1,4 @@
-import { Card, HStack, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Card, HStack, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
@@ -145,26 +145,26 @@ function DnDBar() {
 
       <TabPanels>
         <TabPanel>
-          <div className="grid grid-cols-4 gap-4">
+          <Grid h='200px' templateColumns='repeat(4, 1fr)' gap={4}>
             {featureOptions.map((feature) => {
               return (
-                <div className="w-full" >
+                <GridItem rowSpan={1} colSpan={1}>
                   <FeatureOption key={feature} type={feature} />
-                </div>
+                </GridItem>
               )
             })}
-          </div>
+          </Grid>
         </TabPanel>
         <TabPanel>
-          <div className="grid grid-cols-3 gap-4">
+          <Grid h='200px' templateColumns='repeat(3, 1fr)' gap={4}>
             {modelOptions.map((model) => {
               return (
-                <div className="w-full" >
+                <GridItem rowSpan={1} colSpan={1}>
                   <ModelOption key={model} type={model} />
-                </div>
+                </GridItem>
               )
             })}
-          </div>
+          </Grid>
         </TabPanel>
         <TabPanel>
           <p>two!</p>
