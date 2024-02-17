@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Accordion,
     AccordionItem,
@@ -8,8 +8,42 @@ import {
     Box,
 } from '@chakra-ui/react'
 
+
+export class task{
+    constructor(title, description, id) {
+        this.title = title;
+        this.description = description;
+        this.id = id;
+    }
+}
+
+
+
 const TaskList = () => {
+
+    const [tasks, setTasks] = useState([new task("test", "test descritption", "id")]);
+    
     return (
+        <>
+        <Accordion allowToggle>
+        {tasks.map((task, index) => {
+            <>
+            <AccordionItem>
+                <h2>
+                    <AccordionButton>
+                        <Box as="span" flex='1' textAlign='left'>
+                            {task.title}
+                        </Box>
+                        <AccordionIcon />
+                    </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+                    {task.description}
+                </AccordionPanel>
+            </AccordionItem>
+            </>
+        })}
+</Accordion>
         <Accordion allowToggle>
             <AccordionItem>
                 <h2>
@@ -45,6 +79,7 @@ const TaskList = () => {
                 </AccordionPanel>
             </AccordionItem>
         </Accordion>
+        </>
     )
 };
 
