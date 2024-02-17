@@ -1,4 +1,4 @@
-import { Card, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Card, HStack, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
@@ -42,8 +42,8 @@ function Data() {
     <Card id="data" className="w-full ml-3">
       <CardHeader className='text-center font-bold'>Data</CardHeader>
       <CardBody className='text-center flex flex-col justify-end items-center'>
-        <TableContainer overflow="scroll" className='mt-0 mb-3'>
-          <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
+      <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
+        <TableContainer className='mt-0 mb-3'>
           <Table variant='simple' size="sm">
 
             <Tbody>
@@ -54,9 +54,10 @@ function Data() {
                     const values = data[key];
 
                     return (
+                      <>
                       <Tr key={key}>
                         {/* TODO add emojis */}
-                        <Td><Text fontWeight="bold">{key}</Text></Td>
+                        <Td className="sticky left-0 bg-white"><Text fontWeight="bold">{key}</Text></Td>
                         {
                           values.map((value, index) => {
                             // gen random key
@@ -65,6 +66,7 @@ function Data() {
                           })
                         }
                       </Tr>
+                      </>
                     );
                   }
                 })

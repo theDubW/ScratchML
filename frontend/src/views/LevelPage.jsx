@@ -1,6 +1,7 @@
 import React from 'react';
 import "./LevelPage.scss"
 
+
 const LevelPage = () => {
     return (
         <div class="Container">
