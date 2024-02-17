@@ -7,7 +7,7 @@ import { evalModel, generateData, trainModel } from '../helpers/callEndpoint';
 
 const uid = "user_10";
 
-function Data() {
+function Data({activeFeatures}) {
   // listen to firestore for data
   const db = getFirestore();
   const [data, setData] = useState({});
@@ -21,7 +21,7 @@ function Data() {
         for (const key in docData) {
           data[key] = docData[key];
         }
-        console.log(data);
+        // console.log(data);
         // const data = snapshot.docs.map((doc) => ({
         //   id: doc.id,
         //   ...doc.data()
@@ -38,8 +38,20 @@ function Data() {
   } else {
     num_samples = data[num_samples[0]].length;
   }
+  const { isOver, setNodeRef } = useDroppable({
+    id: 'data-droppable',
+  });
+  const style = {
+    color: isOver ? 'green' : undefined,
+  };
+  // console.log(activeFeatures);
+  // console.log(Object.keys(data));
+  const keys = Object.keys(data);
+  // if(keys.length === 0){
+  //   keys = activeFeatures;
+  // }
   return (
-    <Card id="data" className="w-1/3 ml-3">
+    <Card id="data" className="w-full ml-3" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-bold'>Data</CardHeader>
       <CardBody className='text-center flex flex-col justify-end items-center'>
         <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
@@ -49,12 +61,12 @@ function Data() {
             <Tbody>
               {
                 Object.keys(data).map((key) => {
-                  if (key !== "label") {
+                  // console.log("checking if " + key + " is in " + activeFeatures + " " + activeFeatures.includes(key.toLocaleLowerCase()));
+                  if (key !== "label" && activeFeatures.includes(key)) {
 
                     const values = data[key];
-
+                    // console.log(key);
                     return (
-                      <>
                         <Tr key={key}>
                           {/* TODO add emojis */}
                           <Td className="sticky left-0 bg-white"><Text fontWeight="bold">{key}</Text></Td>
@@ -66,7 +78,6 @@ function Data() {
                             })
                           }
                         </Tr>
-                      </>
                     );
                   }
                 })
@@ -75,7 +86,7 @@ function Data() {
           </Table>
 
         </TableContainer>
-        <Button onClick={generateData(uid, "FoolsGold", 10)}>Generate Data</Button>
+        <Button onClick={() => generateData(uid, "FoolsGold", 10, activeFeatures)}>Generate Data</Button>
       </CardBody>
     </Card>
   );
@@ -99,19 +110,28 @@ function Model({ model }) {
   );
 }
 
-function TrainRun() {
-
+function TrainRun({model_name, features}) {
+  const [evalResult, setEvalResult] = useState(null);
+  const evalModelPerf = async () => {
+    const res = await evalModel(uid, "FoolsGold", model_name, features);
+    console.log(res);
+    setEvalResult(res.result);
+  }
   return (
     <Card id="trainrun" className="w-1/3 h-full relative">
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
       <CardBody className='text-center flex items-center h-full'>
-        <div class="absolute h-3/4 top-0">
+        <div className="absolute h-3/4 top-0">
           <div id="visualization"></div>
+          
         </div>
+        {evalResult !== null ? <Text className='mb-3 font-bold text-center justify-center'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
+
         <div className="absolute h-1/4 bottom-0">
           {/* <Text className='font-bold'>Train</Text> */}
-          <Button>Train Model</Button>
-          <Button className='m-10'>Run Model</Button>
+          
+          <Button className="mr-3" onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
+          <Button onClick={() => evalModelPerf()}>Run Model</Button>
         </div>
       </CardBody>
     </Card >
@@ -158,6 +178,7 @@ function DnDBar() {
         <TabPanel>
           <Grid h='200px' templateColumns='repeat(3, 1fr)' gap={4}>
             {modelOptions.map((model) => {
+              // console.log("model:", model)
               return (
                 <GridItem rowSpan={1} colSpan={1}>
                   <ModelOption key={model} type={model} />
@@ -190,9 +211,9 @@ function ModelOption({ type }) {
       <CardHeader>
         <Text className='font-bold'>{type}</Text>
       </CardHeader>
-      <CardBody>
+      {/* <CardBody>
         <Text>Model</Text>
-      </CardBody>
+      </CardBody> */}
     </Card>
   );
 }
@@ -217,34 +238,61 @@ function FeatureOption({ type }) {
   );
 
 }
+            // "label": labels,
+            // "hardness": hardness,
+            // "density": density,
+            // "conductivity": conductivity,
+            // "shininess": shininess,
+            // "shape": shapes,
+            // "texture": textures,
 
-const modelOptions = ["Decision Tree", "Logistic Regression", "K-Nearest Neighbors"];
-const featureOptions = ["Shape", "Texture", "Density", "Hardness", "Conductivity", "Shininess", "Hardness"];
+const modelOptions = ["Decision Tree", "Logistic Regression", "K-Nearest Neighbors"]
+const features = ["Conductivity", "Density", "Hardness", "Shape", "Shininess", "Texture"]
 
 export function Level() {
-  const [isDropped, setIsDropped] = useState(false);
-  const [activeId, setActiveId] = useState(null);
+  const [isDroppedModel, setIsDroppedModel] = useState(false);
+  const [activeModelId, setActiveModelId] = useState(null);
   const [model, setModel] = useState(null);
+  const [isDroppedFeature, setIsDroppedFeature] = useState(false);
+  const [activeFeatureId, setActiveFeatureId] = useState(null);
+  const [activeFeatures, setActiveFeatures] = useState([]);
   function handleDragEnd(event) {
-    if (event.over && event.over.id === 'model-droppable') {
+    if (event.over && event.over.id === 'model-droppable' && modelOptions.includes(event.active.id)) {
       // console.log(event);
-      setActiveId(event.active.id);
-      setIsDropped(true);
+      setActiveModelId(event.active.id);
+      setIsDroppedModel(true);
+    }
+    if (event.over && event.over.id === 'data-droppable' && features.includes(event.active.id) && !activeFeatures.includes(event.active.id)) {
+      // console.log(event);
+      setIsDroppedFeature(true);
+      setActiveFeatureId(event.active.id.toLocaleLowerCase());
     }
   }
   useEffect(() => {
-    if (activeId !== null) {
-      setModel(activeId);
+    console.log("in active model use effect")
+    if(activeModelId !== null){
+      setModel(activeModelId);
     }
-  }, [activeId]);
+  }, [activeModelId]);
+  useEffect(() => {
+    console.log("UPDATING ACTIVE FEATURES");
+    if(activeFeatureId !== null){
+      
+      // console.log(activeFeatureId);
+      // setActiveFeatureId(activeFeatureId);
+      setActiveFeatures([...activeFeatures, activeFeatureId]);
+    }
+  }, [activeFeatureId]);
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <h1 className='text-4xl text-center pb-10'>Fools Gold</h1>
       <div className='w-full h-2/3 inline-flex'>
-        <Box display="flex" alignItems="center" className='m-0 w-full'>
-          <Data />
-          <Model model={isDropped ? <ModelOption type={activeId}></ModelOption> : undefined} />
-          <TrainRun />
+        <Box display="flex" alignItems="center" className='m-0 w-1/3'>
+          <Data activeFeatures={activeFeatures}/>
+        </Box>
+        <Box display="flex" alignItems="center" className='m-0 w-1/2'>
+          <Model model={isDroppedModel ? <ModelOption type={activeModelId}></ModelOption> : undefined} />
+          <TrainRun model_name={model} features={activeFeatures}/>
         </Box>
       </div>
       <div className='w-full h-800 inline-flex'>
@@ -253,6 +301,10 @@ export function Level() {
         </Box>
         <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full p-10 inline-block'>
           <DnDBar />
+          {/* <Text>Select Features</Text>
+        {features.map((feature) => {
+          return <FeatureOption key={feature} type={feature} />
+        })} */}
         </Box>
       </div>
 
