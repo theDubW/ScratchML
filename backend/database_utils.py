@@ -7,7 +7,6 @@ from sklearn.base import BaseEstimator
 from typing import Any
 
 
-
 def one_hot_encoding(df: pd.DataFrame) -> pd.DataFrame:
     # get categorical columns
     cat_columns = df.select_dtypes(include=["object"]).columns
@@ -35,11 +34,14 @@ def get_data(db: Client, uid: str, problem_name: str, train: bool) -> pd.DataFra
         df = pd.DataFrame.from_dict(item_dict)
         return df
     else:
+        print("doc doesn't exist")
         return pd.DataFrame()
     # print(df)
 
 
-def upload_model_to_storage(uid: str, problem_name: str, model_type: str, model: BaseEstimator) -> None:
+def upload_model_to_storage(
+    uid: str, problem_name: str, model_type: str, model: BaseEstimator
+) -> None:
     bucket = storage.bucket()
     blob = bucket.blob(f"models/{uid}/{problem_name}/{model_type}.joblib")
     buffer = BytesIO()
@@ -49,7 +51,9 @@ def upload_model_to_storage(uid: str, problem_name: str, model_type: str, model:
     buffer.close()
 
 
-def download_model_from_storage(uid: str, problem_name: str, model_type: str) -> BaseEstimator:
+def download_model_from_storage(
+    uid: str, problem_name: str, model_type: str
+) -> BaseEstimator:
     bucket = storage.bucket()
     blob = bucket.blob(f"models/{uid}/{problem_name}/{model_type}.joblib")
     buffer = BytesIO()

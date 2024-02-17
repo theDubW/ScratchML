@@ -3,7 +3,7 @@ import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import {getFirestore, onSnapshot,collection, doc} from "firebase/firestore";
 import {CSS} from '@dnd-kit/utilities';
-import {generateData} from '../helpers/callEndpoint';
+import {evalModel, generateData, trainModel} from '../helpers/callEndpoint';
 
 const uid = "user_10";
 function Data(){
@@ -30,13 +30,21 @@ function Data(){
       }
 
     });
-  }, []);
+  }, [db]);
+  let num_samples = Object.keys(data);
+  if(num_samples.length === 0){
+    num_samples = 0;
+  } else {
+    num_samples = data[num_samples[0]].length;
+  }
   return (
     <Card className="w-full h-2/3 ml-3">
       <CardHeader className='text-center font-bold'>Data</CardHeader>
         <CardBody className='text-center flex flex-col justify-end items-center'>
+          <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
+          <Text># Samples: {num_samples}</Text>
           <TableContainer overflow="scroll" className='mt-0 mb-3'>
-            <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
+            
             <Table variant='simple' size="sm">
               
               <Tbody>
@@ -66,7 +74,7 @@ function Data(){
             </Table>
 
           </TableContainer>
-          <Button onClick={generateData(uid, "FoolsGold", 10)}>Generate Data</Button>
+          <Button onClick={() => {generateData(uid, "FoolsGold", 10)}}>Generate Data</Button>
         </CardBody>
     </Card>
   );
@@ -89,23 +97,23 @@ function Model({model}){
     </Card>
   );
 }
-function Train(){
+function Train({model_name}){
   return (
     <Card  className="w-1/2 flex-grow h-2/3 m-10">
       <CardHeader className='text-center font-bold'>Train</CardHeader>
         <CardBody className='text-center flex justify-center items-center'>
           {/* <Text className='font-bold'>Train</Text> */}
-          <Button>Train Model</Button>
+          <Button onClick={()=>trainModel(uid, "FoolsGold", model_name)}>Train Model</Button>
         </CardBody>
     </Card>
   );
 }
-function Run(){
+function Run({model_name}){
   return (
     <Card className="w-1/2 flex-grow h-2/3 m-10">
       <CardHeader className='text-center font-bold'>Run</CardHeader>
         <CardBody className='text-center flex justify-center items-center'>
-          <Button className=''>Run Model</Button>
+          <Button onClick={()=> evalModel(uid, "FoolsGold", model_name)}>Run Model</Button>
         </CardBody>
     </Card>
   );
@@ -154,11 +162,12 @@ function FeatureOption({type}){
 
 }
 
-const modelOptions = ["Regression", "Clustering", "K-Means"]
+const modelOptions = ["Decision Tree", "Logistic Regression", "K-Means"]
 
 export function Level(){
   const [isDropped, setIsDropped] = useState(false);
   const [activeId, setActiveId] = useState(null);
+  const [model, setModel] = useState(null);
   function handleDragEnd(event) {
     if (event.over && event.over.id === 'model-droppable') {
       // console.log(event);
@@ -166,14 +175,19 @@ export function Level(){
       setIsDropped(true);
     }
   }
+  useEffect(() => {
+    if(activeId !== null){
+      setModel(activeId);
+    }
+  }, [activeId]);
   return (
     <DndContext onDragEnd={handleDragEnd}>
     <h1 className='text-4xl text-center'>Fools Gold</h1>
     <Box display="flex" alignItems="center" height="70vh" width="100vw" className='m-0'>
         <Data />
         <Model model={isDropped ? <ModelOption type={activeId}></ModelOption> : undefined}/>
-        <Train />
-        <Run />
+        <Train model_name={model}/>
+        <Run model_name={model}/>
     </Box>
     <Box display="flex" alignItems="center" height="30vh" width="100vw" className='m-auto'>
       <Text>Drag a Model To Try it</Text>

@@ -3,48 +3,73 @@ import pandas as pd
 from typing import Union
 from firebase_admin.firestore import Client
 from sklearn.base import BaseEstimator
-from database_utils import get_data, one_hot_encoding, upload_model_to_storage, download_model_from_storage
+from database_utils import (
+    get_data,
+    one_hot_encoding,
+    upload_model_to_storage,
+    download_model_from_storage,
+)
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 
-# from firebase_admin import Clien
+
+def user_model_to_model_name(user_model: str) -> str:
+    if user_model == "Decision Tree":
+        return "decision_tree"
+    elif user_model == "Logistic Regression":
+        return "logistic_regression"
+    elif user_model == "K-Nearest Neighbors":
+        return "knn"
+    else:
+        raise ValueError("Bad model type")
 
 
 # generate data for a specific problem for the user
-def gen_data(db: Client, uid: str, problem_name: str, n: int, train: bool = True) -> None:
+def gen_data(
+    db: Client, uid: str, problem_name: str, n: int, train: bool = True
+) -> None:
+    print("GENERATING DATA")
     n_per_class = n // 2
 
     # Generate labels
     labels = np.array([0] * n_per_class + [1] * n_per_class)
-    
+
     # Generate features with overlapping and non-linear distributions
-    hardness = np.concatenate([
-        np.random.normal(5, 1.5, n_per_class) ** 2,  # Non-linear transformation
-        np.random.normal(6, 1.5, n_per_class) ** 2,
-    ]).astype(float)
-    
-    density = np.concatenate([
-        np.random.normal(7.0, 0.5, n_per_class),
-        np.random.normal(7.5, 0.5, n_per_class),
-    ]).astype(float)
-    
-    conductivity = np.concatenate([
-        np.random.normal(4.0, 0.5, n_per_class) ** 3,  # More intense non-linear transformation
-        np.random.normal(4.2, 0.5, n_per_class) ** 3,
-    ]).astype(float)
-    
-    shininess = np.concatenate([
-        np.random.normal(3.5, 0.7, n_per_class) ** 2,  # Non-linear transformation
-        np.random.normal(3.6, 0.7, n_per_class) ** 2,
-    ]).astype(float)
+    hardness = np.concatenate(
+        [
+            np.random.normal(5, 1.5, n_per_class) ** 2,  # Non-linear transformation
+            np.random.normal(6, 1.5, n_per_class) ** 2,
+        ]
+    ).astype(float)
+
+    density = np.concatenate(
+        [
+            np.random.normal(7.0, 0.5, n_per_class),
+            np.random.normal(7.5, 0.5, n_per_class),
+        ]
+    ).astype(float)
+
+    conductivity = np.concatenate(
+        [
+            np.random.normal(4.0, 0.5, n_per_class)
+            ** 3,  # More intense non-linear transformation
+            np.random.normal(4.2, 0.5, n_per_class) ** 3,
+        ]
+    ).astype(float)
+
+    shininess = np.concatenate(
+        [
+            np.random.normal(3.5, 0.7, n_per_class) ** 2,  # Non-linear transformation
+            np.random.normal(3.6, 0.7, n_per_class) ** 2,
+        ]
+    ).astype(float)
 
     # Introducing a categorical feature with more choices and non-linear impact
     shapes = np.random.choice(["square", "circle", "rectangle", "triangle"], size=n)
     # Color feature with even more overlap and complex relationships
     colors = np.random.choice(["yellow", "bronze", "gold", "silver", "copper"], size=n)
-
 
     # Create DataFrame
     new_data = pd.DataFrame(
@@ -58,7 +83,9 @@ def gen_data(db: Client, uid: str, problem_name: str, n: int, train: bool = True
             "color": colors,
         }
     )
+    print("Getting past")
     cur_data = get_data(db, uid, problem_name, train)
+    print("Got past")
     new_data = pd.concat([new_data, cur_data])
 
     db_firestore = {}

@@ -5,7 +5,12 @@ from flask_cors import CORS
 import os
 
 # Assuming evaluate_model function is defined in endpoint_utils or a similar module
-from endpoint_utils import gen_data, train_and_upload_model, evaluate_model
+from endpoint_utils import (
+    gen_data,
+    train_and_upload_model,
+    evaluate_model,
+    user_model_to_model_name,
+)
 
 
 app = Flask(__name__)
@@ -37,7 +42,7 @@ def gen_user_data():
     print(data)
     uid = data["uid"]
     problem_name = data["problem_name"]
-    n = data["n"]
+    n = int(data["n"])
     gen_data(db, uid, problem_name, n, True)
     gen_data(db, uid, problem_name, n, False)
     return jsonify({"status": "success"})
@@ -48,9 +53,10 @@ def gen_user_data():
 @app.route("/train", methods=["POST"])
 def train_model():
     data = request.get_json()
+    print(data)
     uid = data["uid"]
     problem_name = data["problem_name"]
-    model_name = data["model_name"]
+    model_name = user_model_to_model_name(data["model_name"])
     train_and_upload_model(db, uid, problem_name, model_name)
     return jsonify({"status": "success"})
 
@@ -62,7 +68,7 @@ def evaluate_user_model():
     data = request.get_json()
     uid = data["uid"]
     problem_name = data["problem_name"]
-    model_name = data["model_name"]
+    model_name = user_model_to_model_name(data["model_name"])
 
     evaluation_results = evaluate_model(db, uid, problem_name, model_name)
     print(evaluation_results)
