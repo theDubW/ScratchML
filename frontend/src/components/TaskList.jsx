@@ -33,7 +33,7 @@ const TaskList = () => {
                 <DrawerHeader className='justify-between font-lilitaOne'>Tasks <DrawerCloseButton/></DrawerHeader>
                 <DrawerBody>
                 <Accordion allowToggle >
-            <AccordionItem className="mb-2 border rounded font-lilitaOne">
+            <AccordionItem className="mb-2 border-blue-800 border-2 border-b-4 rounded font-lilitaOne">
                 <h2>
                     <AccordionButton>
                         <Box as="span" flex='1' textAlign='left'>
@@ -47,7 +47,7 @@ const TaskList = () => {
                 In this lesson you'll learn why talking to more friends, or having a bigger group, helps us make better guesses about the whole town. It's like taking a peek at more ice cream preferences to discover the real favorites!                </AccordionPanel>
             </AccordionItem>
 
-            <AccordionItem className="mb-2 border rounded font-lilitaOne">
+            <AccordionItem className="mb-2 border-2 border-blue-800 border-b-4 rounded font-lilitaOne">
                 <h2>
                     <AccordionButton>
                         <Box as="span" flex='1' textAlign='left'>
@@ -62,7 +62,7 @@ const TaskList = () => {
                 </AccordionPanel>
             </AccordionItem>
 
-            <AccordionItem className="mb-2 border rounded font-lilitaOne">
+            <AccordionItem className="mb-2 border-2 border-blue-800 border-b-4 rounded font-lilitaOne">
                 <h2>
                     <AccordionButton>
                         <Box as="span" flex='1' textAlign='left'>

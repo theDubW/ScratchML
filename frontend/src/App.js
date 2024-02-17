@@ -10,13 +10,13 @@ function App() {
   return (
     <Router>
     <ChakraProvider>
-    <Stack direction='row' spacing={4} className="p-4 justify-between border-b">
+    <Stack direction='row' spacing={4} className="p-4 justify-between border-b border-blue-800">
     <Heading><Link to="/" className="font-lilitaOne">ScratchML</Link></Heading>
     <ButtonGroup spacing={4}>
-    <Button colorScheme='white'className="hover:bg-gray-300 border-blue-800 border-2 border-b-4" variant='solid'>
+    <Button colorScheme='white'className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
         <text className="text-blue-800 font-lilitaOne">Sandbox</text>
       </Button>
-      <Button colorScheme='white'className="hover:bg-gray-300 border-blue-800 border-2 border-b-4" variant='solid'>
+      <Button colorScheme='white'className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
         <text className="text-blue-800 font-lilitaOne">Account</text>
       </Button>
       <Button colorScheme='white' className="hover:bg-gray-300 border-blue-800 border-2 border-b-4" variant='solid'>
