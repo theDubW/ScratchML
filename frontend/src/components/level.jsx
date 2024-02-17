@@ -142,10 +142,15 @@ function TrainRun({model_name, features}) {
 
 function FeedbackBar() {
   return (
-    <Card className='m-3 h-full w-full'>
+    <Card className="w-full m-3">
       <CardHeader>
-        <Heading size='md'>Feedback</Heading>
+        <Heading size='md text-center justify-center'>Feedback</Heading>
       </CardHeader>
+      <CardBody>
+        <div className="w-full h-1000">
+
+        </div>
+      </CardBody>
     </Card>
   );
 }
@@ -153,19 +158,19 @@ function FeedbackBar() {
 function DnDBar() {
   return (
     <Tabs className="w-full">
-      <TabList>
+      < TabList >
         <Tab>Features</Tab>
         <Tab>Model</Tab>
         <Tab>Training</Tab>
         <Tab>Run</Tab>
-      </TabList>
+      </TabList >
 
       <TabPanels>
         <TabPanel>
-          <div className="inline">
-            {features.map((feature) => {
+          <div className="grid grid-cols-4 gap-4">
+            {featureOptions.map((feature) => {
               return (
-                <div className="w-1/4" >
+                <div className="w-full" >
                   <FeatureOption key={feature} type={feature} />
                 </div>
               )
@@ -173,10 +178,10 @@ function DnDBar() {
           </div>
         </TabPanel>
         <TabPanel>
-          <div className="inline">
+          <div className="grid grid-cols-3 gap-4">
             {modelOptions.map((model) => {
               return (
-                <div className="w-1/3" >
+                <div className="w-full" >
                   <ModelOption key={model} type={model} />
                 </div>
               )
@@ -190,7 +195,7 @@ function DnDBar() {
           <p>three!</p>
         </TabPanel>
       </TabPanels>
-    </Tabs>);
+    </Tabs >);
 }
 
 function ModelOption({ type }) {
@@ -290,10 +295,10 @@ export function Level() {
         </Box>
       </div>
       <div className='w-full h-800 inline-flex'>
-        <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full p-10'>
+        <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full inline-block'>
           <FeedbackBar />
         </Box>
-        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full p-10'>
+        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full p-10 inline-block'>
           <DnDBar />
           {/* <Text>Select Features</Text>
         {features.map((feature) => {
