@@ -4,6 +4,14 @@ module.exports = {
   theme: {
     extend: {},
   },
+  theme: {
+    extend: {
+      fontFamily: {
+        // indieFlower: ["Indie Flower", "sans-serif"],
+        lilitaOne: ["Lilita One"]
+      },
+    },
+  },
   plugins: [],
 }
 

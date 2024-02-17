@@ -23,6 +23,7 @@ def user_model_to_model_name(user_model: str) -> str:
     elif user_model == "K-Nearest Neighbors":
         return "knn"
     else:
+        print(user_model)
         raise ValueError("Bad model type")
 
 
@@ -71,7 +72,7 @@ def gen_data(
             "conductivity": conductivity,
             "shininess": shininess,
             "shape": shapes,
-            "color": textures,
+            "texture": textures,
         }
     )
     print("Getting past")
@@ -91,15 +92,22 @@ def gen_data(
 
 
 def train_and_upload_model(
-    db: Client, uid: str, problem_name: str, model_type: str
+    db: Client, uid: str, problem_name: str, model_type: str, features: list
 ) -> None:
-    # read firebase data
-    df = one_hot_encoding(get_data(db, uid, problem_name, train=True))
-    # print(df)
+    # Read raw data
+    raw_df = get_data(db, uid, problem_name, train=True)
+
+    # Filter the DataFrame to only include the specified features before one-hot encoding
+    # Assuming 'label' is not included in the features list and is added separately
+    filtered_df = raw_df[features + ["label"]]
+
+    # Apply one-hot encoding to the filtered DataFrame
+    df = one_hot_encoding(filtered_df)
+
     X = df.drop("label", axis=1)
     y = df["label"]
 
-    # determine model type
+    # Determine model type
     if model_type == "decision_tree":
         model = DecisionTreeClassifier()
     elif model_type == "logistic_regression":
@@ -107,14 +115,26 @@ def train_and_upload_model(
     elif model_type == "knn":
         model = KNeighborsClassifier()
     else:
+        print(model_type)
         raise ValueError("Bad model type")
+
     model.fit(X, y)
 
     upload_model_to_storage(uid, problem_name, model_type, model)
 
 
-def evaluate_model(db: Client, uid: str, problem_name: str, model_type: str) -> dict:
-    test_df = one_hot_encoding(get_data(db, uid, problem_name, train=False))
+def evaluate_model(
+    db: Client, uid: str, problem_name: str, model_type: str, features: list
+) -> dict:
+    # Read raw data
+    raw_df = get_data(db, uid, problem_name, train=False)
+
+    # Filter the DataFrame to only include the specified features before one-hot encoding
+    filtered_df = raw_df[features + ["label"]]
+
+    # Apply one-hot encoding to the filtered DataFrame
+    test_df = one_hot_encoding(filtered_df)
+
     X_test = test_df.drop("label", axis=1)
     y_test = test_df["label"]
 
