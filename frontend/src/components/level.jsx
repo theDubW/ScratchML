@@ -1,4 +1,4 @@
-import { Card, HStack, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Card, HStack, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
@@ -21,7 +21,7 @@ function Data({activeFeatures}) {
         for (const key in docData) {
           data[key] = docData[key];
         }
-        console.log(data);
+        // console.log(data);
         // const data = snapshot.docs.map((doc) => ({
         //   id: doc.id,
         //   ...doc.data()
@@ -45,13 +45,13 @@ function Data({activeFeatures}) {
     color: isOver ? 'green' : undefined,
   };
   // console.log(activeFeatures);
-  console.log(Object.keys(data));
+  // console.log(Object.keys(data));
   const keys = Object.keys(data);
   // if(keys.length === 0){
   //   keys = activeFeatures;
   // }
   return (
-    <Card id="data" className="w-full ml-3" ref={setNodeRef} style={style}>
+    <Card id="data" className="w-1/3 ml-3" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-bold'>Data</CardHeader>
       <CardBody className='text-center flex flex-col justify-end items-center'>
         <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
@@ -65,9 +65,8 @@ function Data({activeFeatures}) {
                   if (key !== "label" && activeFeatures.includes(key)) {
 
                     const values = data[key];
-
+                    // console.log(key);
                     return (
-                      <>
                         <Tr key={key}>
                           {/* TODO add emojis */}
                           <Td className="sticky left-0 bg-white"><Text fontWeight="bold">{key}</Text></Td>
@@ -79,7 +78,6 @@ function Data({activeFeatures}) {
                             })
                           }
                         </Tr>
-                      </>
                     );
                   }
                 })
@@ -120,15 +118,18 @@ function TrainRun({model_name, features}) {
     setEvalResult(res.result);
   }
   return (
-    <Card id="trainrun" className="w-2/3 h-full m-10 relative">
+    <Card id="trainrun" className="w-1/3 h-full relative">
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
       <CardBody className='text-center flex items-center h-full'>
-        <div class="absolute h-3/4 top-0">
+        <div className="absolute h-3/4 top-0">
           <div id="visualization"></div>
+          
         </div>
+        {evalResult !== null ? <Text className='mb-3 font-bold text-center justify-center'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
+
         <div className="absolute h-1/4 bottom-0">
           {/* <Text className='font-bold'>Train</Text> */}
-          {evalResult !== null ? <Text className='mb-3 font-bold'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
+          
           <Button className="mr-3" onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
           <Button onClick={() => evalModelPerf()}>Run Model</Button>
         </div>
@@ -139,10 +140,15 @@ function TrainRun({model_name, features}) {
 
 function FeedbackBar() {
   return (
-    <Card className='m-3 h-full w-full'>
+    <Card className="w-full m-3">
       <CardHeader>
-        <Heading size='md'>Feedback</Heading>
+        <Heading size='md text-center justify-center'>Feedback</Heading>
       </CardHeader>
+      <CardBody>
+        <div className="w-full h-1000">
+
+        </div>
+      </CardBody>
     </Card>
   );
 }
@@ -150,35 +156,36 @@ function FeedbackBar() {
 function DnDBar() {
   return (
     <Tabs className="w-full">
-      <TabList>
+      < TabList >
         <Tab>Features</Tab>
         <Tab>Model</Tab>
         <Tab>Training</Tab>
         <Tab>Run</Tab>
-      </TabList>
+      </TabList >
 
       <TabPanels>
         <TabPanel>
-          <div className="inline">
+          <Grid h='200px' templateColumns='repeat(4, 1fr)' gap={4}>
             {features.map((feature) => {
               return (
-                <div className="w-1/4" >
+                <GridItem rowSpan={1} colSpan={1}>
                   <FeatureOption key={feature} type={feature} />
-                </div>
+                </GridItem>
               )
             })}
-          </div>
+          </Grid>
         </TabPanel>
         <TabPanel>
-          <div className="inline">
+          <Grid h='200px' templateColumns='repeat(3, 1fr)' gap={4}>
             {modelOptions.map((model) => {
+              // console.log("model:", model)
               return (
-                <div className="w-1/3" >
+                <GridItem rowSpan={1} colSpan={1}>
                   <ModelOption key={model} type={model} />
-                </div>
+                </GridItem>
               )
             })}
-          </div>
+          </Grid>
         </TabPanel>
         <TabPanel>
           <p>two!</p>
@@ -187,7 +194,7 @@ function DnDBar() {
           <p>three!</p>
         </TabPanel>
       </TabPanels>
-    </Tabs>);
+    </Tabs >);
 }
 
 function ModelOption({ type }) {
@@ -262,13 +269,15 @@ export function Level() {
     }
   }
   useEffect(() => {
+    console.log("in active model use effect")
     if(activeModelId !== null){
       setModel(activeModelId);
     }
   }, [activeModelId]);
   useEffect(() => {
+    console.log("UPDATING ACTIVE FEATURES");
     if(activeFeatureId !== null){
-      console.log("UPDATING ACTIVE FEATURES");
+      
       // console.log(activeFeatureId);
       // setActiveFeatureId(activeFeatureId);
       setActiveFeatures([...activeFeatures, activeFeatureId]);
@@ -278,19 +287,17 @@ export function Level() {
     <DndContext onDragEnd={handleDragEnd}>
       <h1 className='text-4xl text-center pb-10'>Fools Gold</h1>
       <div className='w-full h-2/3 inline-flex'>
-        <Box display="flex" alignItems="center" className='m-0 w-1/3'>
+        <Box display="flex" alignItems="center" className='m-0 w-full'>
           <Data activeFeatures={activeFeatures}/>
-        </Box>
-        <Box display="flex" alignItems="center" className='m-0 w-1/2'>
           <Model model={isDroppedModel ? <ModelOption type={activeModelId}></ModelOption> : undefined} />
           <TrainRun model_name={model} features={activeFeatures}/>
         </Box>
       </div>
       <div className='w-full h-800 inline-flex'>
-        <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full p-10'>
+        <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full inline-block'>
           <FeedbackBar />
         </Box>
-        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full p-10'>
+        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full p-10 inline-block'>
           <DnDBar />
           {/* <Text>Select Features</Text>
         {features.map((feature) => {
