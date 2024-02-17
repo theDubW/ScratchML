@@ -1,4 +1,4 @@
-import { Card, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, CardFooter, Flex, Button, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Card, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
@@ -88,7 +88,7 @@ function Model({ model }) {
   };
 
   return (
-    <Card className="w-1/3 h-full flex-grow m-10" ref={setNodeRef} style={style}>
+    <Card className="w-1/3 h-full m-1" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-bold'>Model</CardHeader>
       <CardBody className='text-center '>
         {model !== undefined ? model : <></>}
@@ -102,13 +102,23 @@ function TrainRun() {
   return (
     <Card id="trainrun" className="w-2/3 h-full m-10 relative">
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
-      <CardBody className='text-center flex justify-center items-center'>
-        {/* <Text className='font-bold'>Train</Text> */}
-        <Button>Train Model</Button>
-      </CardBody>
-      <CardBody className='text-center flex justify-center items-center'>
-        <Button className=''>Run Model</Button>
-      </CardBody>
+      <div className="absolute bottom-0">
+        <CardBody className='text-center flex items-center'>
+          {/* <Text className='font-bold'>Train</Text> */}
+          <Button>Train Model</Button>
+          <Button className='m-10'>Run Model</Button>
+        </CardBody>
+      </div>
+    </Card >
+  );
+}
+
+function FeedbackBar() {
+  return (
+    <Card className='m-3 h-full w-full'>
+      <CardHeader>
+        <Heading size='md'>Feedback</Heading>
+      </CardHeader>
     </Card>
   );
 }
@@ -128,7 +138,7 @@ function DnDBar() {
           <div className="inline">
             {featureOptions.map((feature) => {
               return (
-                <div className="w-1/8" >
+                <div className="w-1/4" >
                   <FeatureOption key={feature} type={feature} />
                 </div>
               )
@@ -229,10 +239,11 @@ export function Level() {
           <TrainRun />
         </Box>
       </div>
-      <div className='w-full h-1/3 inline-flex'>
-        <Box display="flex" alignItems="center" className='m-0 w-1/3'>
+      <div className='w-full h-800 inline-flex'>
+        <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full p-10'>
+          <FeedbackBar />
         </Box>
-        <Box display="flex" alignItems="center" className='m-0 w-2/3 p-10'>
+        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full p-10'>
           <DnDBar />
         </Box>
       </div>
