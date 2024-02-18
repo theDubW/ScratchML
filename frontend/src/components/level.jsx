@@ -312,7 +312,7 @@ export function Level() {
   }, [activeFeatureId]);
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <h1 className='text-4xl text-center pb-10'>Fools Gold</h1>
+      <h1 className='text-4xl text-center pb-10 font-lilitaOne'>Fools Gold</h1>
       <div className='w-full h-2/3 inline-flex'>
         <Box display="flex" alignItems="center" className='m-0 w-full'>
           <Data activeFeatures={activeFeatures}/>
@@ -337,3 +337,5 @@ export function Level() {
     </DndContext>
   );
 }
+
+export {FeedbackBar};
