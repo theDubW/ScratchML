@@ -3,7 +3,7 @@ import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
 import { CSS } from '@dnd-kit/utilities';
-import { evalModel, generateData, trainModel, trainSandboxModel } from '../helpers/callEndpoint';
+import { evalModel, evalSandboxModel, generateData, trainModel, trainSandboxModel } from '../helpers/callEndpoint';
 import { FeedbackBar } from './level';
 import { drop } from 'lodash';
 import Sand from '../sand.png';
@@ -101,12 +101,12 @@ function DroppableRow({ numDroppables, curLayers, params, setParams }) {
 // conv layer (conv) number output dim
 // linear layer (linear) number output dim
 
-function LayerBank({availableLayers, setSelectedLayer}) {
+function LayerBank({availableLayers, outputVal}) {
     return (
       <Tabs isFitted variant='unstyled' className="w-full border-2 border-slate-300 mt-2 ml-3 rounded-lg">
       < TabList >
         <Tab className="text-blue-800 hover:bg-gray-300">Layers</Tab>
-        <Tab className="text-blue-800 hover:bg-gray-300">Train</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300">Results</Tab>
       </TabList >
       <TabIndicator
         className="border-b-2 border-blue-800 text-blue-800"
@@ -125,7 +125,15 @@ function LayerBank({availableLayers, setSelectedLayer}) {
           </Grid>
         </TabPanel>
         <TabPanel>
-          <Text>Train</Text>
+
+          <Flex direction="column">
+            {/* ... */}
+            {/* BEGIN: ed8c6549bwf9 */}
+            <Text>{outputVal ? "Accuracy: "+ outputVal["accuracy"] : ""}</Text>
+            <Text>{outputVal ? "Loss: "+ outputVal["loss"] : ""}</Text>
+            {/* END: ed8c6549bwf9 */}
+          </Flex>
+
         </TabPanel>
       </TabPanels>
     </Tabs >
@@ -150,6 +158,7 @@ function LayerOption({ type }) {
   } : undefined;
 
   const [inputVal, setInputVal] = useState(6);
+  
   return (
     <Card className='m-3 border-blue-800' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <CardHeader>
@@ -177,6 +186,17 @@ function trainSandbox(curLayers, params){
   trainSandboxModel("user_10", layers, params);
 }
 
+function evalSandbox(curLayers, setOutputVal) {
+  const layers = curLayers.filter(layer => layer !== undefined);
+  evalSandboxModel("user_10", "sandbox", "mnist", "Cross Entropy").then((data) => {
+    const res = data["result"];
+    console.log("Result: ", res);
+    console.log("Accuracy: ", res["accuracy"]);
+    console.log("Loss: ", res["loss"]);
+    setOutputVal(res);
+  });
+}
+
 
 const layers = ["Input", "Convolutional", "Linear", "Output"];
 
@@ -191,6 +211,7 @@ export default function Sandbox() {
     const [curLayers, setCurLayers] = useState(Array(numDroppables).fill(undefined));
     const [selectedLayer, setSelectedLayer] = useState(null);
     const [params, setParams] = useState(Array(numDroppables).fill(undefined));
+    const [outputVal, setOutputVal] = useState(16);
     function handleDragEnd(event) {
       const droppedId = event.active.id;
       const layerType = droppedId.split("-")[0];
@@ -244,6 +265,7 @@ export default function Sandbox() {
               <h1 className='text-4xl text-center pb-10 font-lilitaOne'>Sandbox</h1>
             </div>
             <Button className='m-3' onClick={() => trainSandbox(curLayers, params)}>Train</Button>
+            <Button className='m-3' onClick={() => evalSandbox(curLayers, setOutputVal)}>Evaluate</Button>
           </div>
           {/* <div className='w-full h-full flex flex-col'> */}
             {/* <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full inline-block'>
@@ -254,13 +276,13 @@ export default function Sandbox() {
                <DroppableRow numDroppables={numDroppables} curLayers={curLayers} params={params} setParams={setParams}/>
             </div>
             <div className=''>
-              <LayerBank availableLayers={availableLayers} setSelectedLayer={setSelectedLayer}/>
+              <LayerBank availableLayers={availableLayers} outputVal={outputVal}/>
             </div>
           </Box>   
         {/* </div> */}
         
         </DndContext>
-        <img className="fixed bottom-0 left-0 w-full h-auto transform translate-y-1/2 -translate-y-1/2" src={Sand} alt="sand"/>
+        <img className="fixed bottom-0 left-0 w-full h-auto transform translate-y-20" src={Sand} alt="sand"/>
         </>
         
     )

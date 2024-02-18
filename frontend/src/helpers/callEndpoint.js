@@ -114,3 +114,27 @@ export async function evalModel(uid, problem_name, modelName, features){
   const json = await res.json();
   return json;
 }
+
+
+// uid = data["uid"]
+    // problem_name = data["problem_name"]
+    // model_name = data["model_name"]
+    // criterion_name = data["criterion_name"]
+
+export async function evalSandboxModel(uid, problem_name, model_name, criterion_name){
+  const data = {
+    "uid": uid,
+    "problem_name": problem_name,
+    "model_name": model_name,
+    "criterion_name": criterion_name
+  }
+  const res = await fetch('http://localhost:5000/evaluate_sandbox', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  return json;
+}
