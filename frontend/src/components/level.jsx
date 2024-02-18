@@ -201,34 +201,7 @@ function ProblemDrawer() {
         </DrawerContent>
       </Drawer>
     </div>
-  )
-}
-
-function ProblemDrawer() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  return (
-    <div id="drawer">
-      <div className="m-4" id="icon">
-        <Tooltip hasArrow label='Read the problem' bg='blue.800'>
-          <button onClick={onOpen}>
-            <HiArrowRight size={32} />
-          </button>
-        </Tooltip>
-      </div>
-      <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} onClose={onClose} size={'md'}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader borderBottomWidth='1px'>Lesson One: Sample Size</DrawerHeader>
-          <DrawerBody>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-    </div>
-  )
+  );
 }
 
 function DnDBar({availableModels, availableFeatures}) {
@@ -273,7 +246,8 @@ function DnDBar({availableModels, availableFeatures}) {
           <p>three!</p>
         </TabPanel>
       </TabPanels>
-    </Tabs >);
+    </Tabs >
+    </Card>);
 }
 
 function ModelOption({ type, removeModel}) {
