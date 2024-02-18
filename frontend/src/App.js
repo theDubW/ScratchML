@@ -19,32 +19,32 @@ function App() {
       heading: `'Lilita One', sans-serif`,
       // body: `'Lilita One', sans-serif`,
     },
-  })
+  });
   return (
     <Router>
-    <ChakraProvider theme={theme}>
-    <Stack direction='row' spacing={4} className="p-4 justify-between border-b border-blue-800">
-    <Heading><Link to="/" className="font-lilitaOne">ScratchML</Link></Heading>
-    <ButtonGroup spacing={4}>
-      <Link to="/sandbox">
-    <Button colorScheme='white' className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
-        <Text to="/sandbox" className="text-blue-800 font-lilitaOne">Sandbox</Text>
-      </Button>
-      </Link>
-      <Button colorScheme='white'className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
-        <Text className="text-blue-800 font-lilitaOne">Account</Text>
-      </Button>
-      <Button colorScheme='white' className="hover:bg-gray-300 border-blue-800 border-2 border-b-4" variant='solid'>
-        <Text className="text-blue-800 font-lilitaOne">Settings</Text>
-      </Button>
-      </ButtonGroup>
-    </Stack>
-      <Routes>
-        <Route exact path="/" Component={LandingPage}/>
-        <Route path="/lessonOne" Component={Level}/>
-        <Route path="/sandbox" Component={sandbox}/>
-      </Routes>
-    </ChakraProvider>
+      <ChakraProvider theme={theme}>
+        <Stack direction='row' spacing={4} className="p-4 justify-between border-b border-blue-800">
+          <Heading><Link to="/" className="font-lilitaOne">ScratchML</Link></Heading>
+          <ButtonGroup spacing={4}>
+            <Link to="/sandbox">
+              <Button colorScheme='white' className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
+              <Text to="/sandbox" className="text-blue-800 font-lilitaOne">Sandbox</Text>
+            </Button>
+            </Link>
+            <Button colorScheme='white'className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
+              <Text className="text-blue-800 font-lilitaOne">Account</Text>
+            </Button>
+            <Button colorScheme='white' className="hover:bg-gray-300 border-blue-800 border-2 border-b-4" variant='solid'>
+              <Text className="text-blue-800 font-lilitaOne">Settings</Text>
+            </Button>
+          </ButtonGroup>
+        </Stack>
+          <Routes>
+            <Route exact path="/" Component={LandingPage}/>
+            <Route path="/lessonOne" Component={Level}/>
+            <Route path="/sandbox" Component={sandbox}/>
+          </Routes>
+      </ChakraProvider>
     </Router>
   );
 }
