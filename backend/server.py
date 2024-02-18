@@ -81,7 +81,7 @@ def evaluate_user_model():
     # Generate feedback using the evaluation results
     feedback = generate_ml_experiment_feedback(len(data) * 5, features, model_name, evaluation_results)
     print(feedback)
-    return jsonify({"status": "success", "result": evaluation_results})
+    return jsonify({"status": "success", "result": evaluation_results, "feedback": feedback})
 
 
 # bucket = storage.bucket()
