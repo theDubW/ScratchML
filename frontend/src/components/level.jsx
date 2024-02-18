@@ -1,4 +1,4 @@
-import { Card, HStack, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Card, HStack, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
@@ -51,13 +51,14 @@ function Data({activeFeatures}) {
   //   keys = activeFeatures;
   // }
   return (
-    <Card id="data" className="w-1/3 ml-3" ref={setNodeRef} style={style}>
-      <CardHeader className='text-center font-bold'>Data</CardHeader>
-      <CardBody className='text-center flex flex-col justify-end items-center'>
-        <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
+    <div className="w-1/3 h-full ml-3 mr-1 border-2 border-slate-300 rounded-lg">
+    <Card id="data" className="rounded-lg h-full" ref={setNodeRef} style={style}>
+      <CardHeader className='text-center font-lilitaOne'>Data</CardHeader>
+      <CardBody className='text-center flex flex-col justify-end items-center pb-0'>
+        {/* <Text className='text-bold'>Gold v. Fool's Gold Properties</Text> */}
+        {activeFeatures.length === 0 ? <div className="bg-gray-300 rounded-lg border-dashed border-black border-2 w-full h-full font-signika">Drag some features here!</div> : <></>}
         <TableContainer className='mt-0 mb-3'>
           <Table variant='simple' size="sm">
-
             <Tbody>
               {
                 Object.keys(data).map((key) => {
@@ -69,12 +70,12 @@ function Data({activeFeatures}) {
                     return (
                         <Tr key={key}>
                           {/* TODO add emojis */}
-                          <Td className="sticky left-0 bg-white"><Text fontWeight="bold">{key}</Text></Td>
+                          <Td className="sticky left-0 bg-white font-signika"><Text fontWeight="bold">{key}</Text></Td>
                           {
                             values.map((value, index) => {
                               // gen random key
                               // const randomKey = Math.random();
-                              return <Td key={index}><Text>{value}</Text></Td>
+                              return <Td key={index}><Text className="font-signika">{value}</Text></Td>
                             })
                           }
                         </Tr>
@@ -86,9 +87,13 @@ function Data({activeFeatures}) {
           </Table>
 
         </TableContainer>
-        <Button onClick={() => generateData(uid, "FoolsGold", 10, activeFeatures)}>Generate Data</Button>
+        {activeFeatures.length > 0 ? <>
+        <Button colorScheme="white" onClick={() => generateData(uid, "FoolsGold", 10, activeFeatures)} className="border-blue-800 border-2 rounded hover:bg-gray-300 font-signika"> 
+        <Text className="text-blue-800">Generate Data</Text></Button>
+        </> : <></>}
       </CardBody>
     </Card>
+    </div>
   );
 }
 
@@ -101,12 +106,14 @@ function Model({ model }) {
   };
 
   return (
-    <Card className="w-1/3 h-full m-1" ref={setNodeRef} style={style}>
-      <CardHeader className='text-center font-bold'>Model</CardHeader>
+    <div className="w-1/3 h-full border-2 ml-1 mr-1 border-slate-300 rounded-lg">
+    <Card className="h-full rounded-lg" ref={setNodeRef} style={style}>
+      <CardHeader className='text-center font-lilitaOne'>Model</CardHeader>
       <CardBody className='text-center '>
-        {model !== undefined ? model : <></>}
+        {model !== undefined ? <div className="">{model}</div> : <div className="bg-gray-300 rounded-lg border-dashed border-black border-2 w-full h-full font-signika">Drag your model here!</div>}
       </CardBody>
     </Card>
+    </div>
   );
 }
 
@@ -117,30 +124,46 @@ function TrainRun({model_name, features}) {
     console.log(res);
     setEvalResult(res.result);
   }
+  const [training, setTraining] = useState(false);
+  
   return (
-    <Card id="trainrun" className="w-1/3 h-full relative">
-      <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
-      <CardBody className='text-center flex items-center h-full'>
-        <div className="absolute h-3/4 top-0">
+    <div className="w-1/3 h-full ml-1 border-2 border-slate-300 rounded-lg ">
+    <Card id="trainrun" className="h-full rounded-lg pb-4">
+      <CardHeader className='text-center font-lilitaOne'>Train / Run</CardHeader>
+      <CardBody className='text-center flex items-center h-full flex-col'>
+        <div className=" h-3/4 top-0">
           <div id="visualization"></div>
           
         </div>
         {evalResult !== null ? <Text className='mb-3 font-bold text-center justify-center'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
 
-        <div className="absolute h-1/4 bottom-0">
+        <div className="h-1/4 align-middle flex flex-row justify-center">
           {/* <Text className='font-bold'>Train</Text> */}
           
-          <Button className="mr-3" onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
-          <Button onClick={() => evalModelPerf()}>Run Model</Button>
+          <Button colorScheme="white" className="mr-3 hover:bg-gray-300 border-blue-800 border-2" onClick={() => 
+          async function train() {
+            setTraining(true);
+            trainModel(uid, "FoolsGold", model_name, features);
+            await new Promise( res => setTimeout(res, 1000));
+            setTraining(false);
+          }
+            }>
+              {training ? <>Loading...</> : 
+            <Text className="text-blue-800 font-signika">Train Model</Text>}</Button>
+          <Button colorScheme="white" onClick={() => evalModelPerf()} className="hover:bg-gray-300 border-blue-800 border-2">
+          <Text className="text-blue-800 font-signika">Run Model</Text>
+          </Button>
         </div>
       </CardBody>
     </Card >
+    </div>
   );
 }
 
 function FeedbackBar() {
   return (
-    <Card className="w-full m-3">
+    <div className="w-full ml-3 mr-0 mt-2 border-slate-300 border-2 rounded-lg">
+    <Card className="">
       <CardHeader>
         <Heading size='md text-center justify-center'>Feedback</Heading>
       </CardHeader>
@@ -150,18 +173,22 @@ function FeedbackBar() {
         </div>
       </CardBody>
     </Card>
+    </div>
   );
 }
 
 function DnDBar() {
   return (
-    <Tabs className="w-full">
+    <Tabs isFitted variant='unstyled' className="w-full border-2 border-slate-300 mt-2 ml-3 rounded-lg">
       < TabList >
-        <Tab>Features</Tab>
-        <Tab>Model</Tab>
-        <Tab>Training</Tab>
-        <Tab>Run</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300">Features</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300">Model</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300" isDisabled>Training</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300" isDisabled>Run</Tab>
       </TabList >
+      <TabIndicator
+        className="border-b-2 border-blue-800 text-blue-800"
+      />
 
       <TabPanels>
         <TabPanel>
@@ -209,7 +236,7 @@ function ModelOption({ type }) {
   return (
     <Card className='m-3' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <CardHeader>
-        <Text className='font-bold'>{type}</Text>
+        <Text className='font-bold text-blue-800'>{type}</Text>
       </CardHeader>
       {/* <CardBody>
         <Text>Model</Text>
@@ -227,9 +254,9 @@ function FeatureOption({ type }) {
   } : undefined;
 
   return (
-    <Card className='m-3' ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <Card className='m-3 border-blue-800' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <CardHeader>
-        <Text className='font-bold'>{type}</Text>
+        <Text className='font-bold text-blue-800'>{type}</Text>
       </CardHeader>
       {/* <CardBody>
         <Text></Text>
@@ -297,7 +324,7 @@ export function Level() {
         <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full inline-block'>
           <FeedbackBar />
         </Box>
-        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full p-10 inline-block'>
+        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full inline-block'>
           <DnDBar />
           {/* <Text>Select Features</Text>
         {features.map((feature) => {

@@ -8,7 +8,8 @@ module.exports = {
     extend: {
       fontFamily: {
         // indieFlower: ["Indie Flower", "sans-serif"],
-        lilitaOne: ["Lilita One"]
+        lilitaOne: ["Lilita One"],
+        signika: ["Signika"]
       },
     },
   },
