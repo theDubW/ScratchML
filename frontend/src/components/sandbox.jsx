@@ -3,6 +3,16 @@ import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { CSS } from '@dnd-kit/utilities';
 import Sand from '../sand.png';
+import {
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    MenuItemOption,
+    MenuGroup,
+    MenuOptionGroup,
+    MenuDivider,
+  } from '@chakra-ui/react'
 
 // A place to drop layers
 function Droppable({index, layerType, dimension}){
@@ -13,40 +23,53 @@ function Droppable({index, layerType, dimension}){
     color: isOver ? 'green' : undefined,
   };
   return (
-    <Card className="rounded-lg border border-gray-100 w-full h-full" ref={setNodeRef} style={style}>
-      <Heading size='md'> {
+    <div className="w-1/3 h-full">
+    <Heading size='md'> {
         layerType && (
           <Text className='text-center font-lilitaOne flex items-center justify-center'>{layerType}</Text>
         )
       }</Heading>
+    <Card className="rounded-lg border border-gray-100 w-full h-full" ref={setNodeRef} style={style}>
+      
       <CardBody>
       {/* <Text className='text-center font-lilitaOne'>Card</Text> */}
      
       {
         layerType && (
         // <CardBody className='text-center '>
-        <Text>Dimension: {dimension}</Text>)
+        <Text>{dimension}</Text>)
           // </CardBody>))
       }
       {/* <Text>...</Text> */}
       </CardBody>
     </Card>
+    </div>
   );
 }
 
 
-function DroppableRow({ numDroppables, curLayers }) {
+function DroppableRow({ numDroppables, curLayers, setCurLayers }) {
   const template = `repeat(${numDroppables}, 1fr)`;
+  const removeLayer = (layer) => {
+    // console.log("removing feature: " + feature);
+    // console.log(activeFeatures);
+    const newCurLayers = curLayers.filter((f) => f !== layer);
+    // console.log(newActiveFeatures);
+    setCurLayers(newCurLayers);
+    // const newAvailableFeatures = [...availableFeatures, feature];
+    // setAvailableFeatures(newAvailableFeatures);
+  }
 
   return (
     <Grid templateColumns={template} gap={4} style={{ minHeight: '33vh' }}>
-      {Array(numDroppables).fill().map((_, index) => {
+      {Array(numDroppables).fill().map((key, index) => {
         const layerType = curLayers[index] ? curLayers[index][0] : undefined;
         const dimension = curLayers[index] ? curLayers[index][1] : undefined;
 
         return (
           <GridItem key={index} rowSpan={1} colSpan={1}>
-            <Droppable key={index} index={index} layerType={layerType} dimension={dimension} />
+            <Droppable key={index} index={index} layerType={layerType} dimension={dimension}/>
+            {/* <Button size="xs" variant="outline" className='left-0 mr-1' onClick={()=>removeLayer(key)}>X</Button> */}
           </GridItem>
         );
       })}
@@ -59,10 +82,22 @@ function DroppableRow({ numDroppables, curLayers }) {
 function LayerBank({availableLayers}) {
     return (
       <>
-      <Heading className="font-lilitaOne text-center">
-        Layers
-      </Heading>
-          <Grid h='200px' templateColumns='repeat(4, 1fr)' gap={4}>
+      <Tabs isFitted variant='unstyled' className="w-2/3 border-2 ml-3 border-slate-300 mt-2 rounded-lg">
+      < TabList >
+        <Tab className="text-blue-800 hover:bg-gray-300">Data</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300">Layers</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300">Training</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300">Run</Tab>
+      </TabList >
+      <TabIndicator
+        className="border-b-2 border-blue-800 text-blue-800"
+      />
+      <TabPanels>
+      <TabPanel>
+          
+          </TabPanel>
+        <TabPanel>
+        <Grid h='200px' templateColumns='repeat(4, 1fr)' gap={4}>
             {availableLayers.map((layer) => {
               return (
                 <GridItem key={layer} rowSpan={1} colSpan={1}>
@@ -71,6 +106,25 @@ function LayerBank({availableLayers}) {
               )
             })}
           </Grid>
+        </TabPanel>
+        <TabPanel>
+        <Menu>
+  <MenuButton as={Button}>
+    Loss Function
+  </MenuButton>
+  <MenuList>
+    <MenuItem>Log Loss</MenuItem>
+    <MenuItem>Cross-Entropy Loss</MenuItem>
+    <MenuItem>Mean Squared Error</MenuItem>
+    <MenuItem>Mean Absolute Error</MenuItem>
+  </MenuList>
+</Menu>
+        </TabPanel>
+        <TabPanel>
+
+        </TabPanel>
+      </TabPanels>
+          </Tabs>
           </>
       );
 }
@@ -90,33 +144,33 @@ function LayerOption({ type }) {
     "Output": undefined
   }
   return (
+    <>
     <Card className='m-3 border-blue-800' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <CardHeader>
         {type}
       </CardHeader>
-      
-        {
-          inputLabel[type] && (
-            <FormControl className='text-center'>
-          <FormLabel className='ml-3 font'>Dimensions</FormLabel>
-            <NumberInput max={500} min={1} onChange={(valueString) => 
-            {
-                console.log("ON CHANGE\n");
-            setDimensions(valueString);
-            }
-        }
-      value={dimensions} className='m-2'>
-          <NumberInputField />
-        </NumberInput>
-        </FormControl>
-          )
-        }
-        
 
       {/* <CardBody>
         <Text></Text>
       </CardBody> */}
     </Card>
+    {
+        inputLabel[type] && (
+          <FormControl className='text-center'>
+        <FormLabel className='ml-3 font'>Dimensions</FormLabel>
+          <NumberInput max={500} min={1} onChange={(valueString) => 
+          {
+              console.log("ON CHANGE\n");
+          setDimensions(valueString);
+          }
+      }
+    value={dimensions} className='m-2'>
+        <NumberInputField />
+      </NumberInput>
+      </FormControl>
+        )
+      }
+      </>
   );
 
 }
@@ -132,6 +186,13 @@ export default function Sandbox() {
     const numDroppables = 8;
     //array of tuples of [(layerType, dimension)]
     const [curLayers, setCurLayers] = useState(Array(numDroppables).fill(undefined));
+   
+    // setCurLayers([...curLayers.slice(0, droppedIndex), [layerType, 6], ...curLayers.slice(droppedIndex+1)]);
+
+    // curLayers[0][0] = 'Input';
+    // curLayers[0][1] = 6;
+    // curLayers[curLayers.length - 1][0] = 'Output';
+    // curLayers[curLayers.length - 1][1] = 6;
 
     function handleDragEnd(event) {
       const droppedId = event.active.id;
@@ -172,6 +233,8 @@ export default function Sandbox() {
     }
 
     useEffect(() => {
+        // setCurLayers(['input', 6], ...curLayers.slice(1));
+        // setCurLayers([...curLayers.slice(0, curLayers.length - 2)], ['Output', 6]);
       console.log("Current layers: ", curLayers);
     }, [curLayers]);
     return (
@@ -184,7 +247,7 @@ export default function Sandbox() {
             </Box> */}
           <Box className='flex-col  w-full h-full inline-flex'>
             <div className='h-full'>
-               <DroppableRow numDroppables={numDroppables} curLayers={curLayers}/>
+               <DroppableRow numDroppables={numDroppables} curLayers={curLayers} setCurLayers={setCurLayers}/>
             </div>
             <div className=''>
               <LayerBank availableLayers={availableLayers}/>

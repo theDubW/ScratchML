@@ -272,6 +272,7 @@ function DnDBar({availableModels, availableFeatures}) {
       />
 
       <TabPanels>
+        
         <TabPanel>
           <Grid h='200px' templateColumns='repeat(4, 1fr)' gap={4}>
             {availableFeatures.map((feature) => {
