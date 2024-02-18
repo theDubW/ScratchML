@@ -138,10 +138,10 @@ function Model({ activeModelId, setActiveModelId, availableModels, setAvailableM
     <div className="w-1/3 h-full m-1 border-2 border-slate-300 rounded-lg">
     <Card className="h-full rounded-lg" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-lilitaOne flex items-center justify-center'>Model</CardHeader>
-      <CardBody className='text-center '>
-        {activeModelId !== null && (
-            <ModelOption type={activeModelId} removeModel={removeModel}/>
-        )}
+      <CardBody className='text-center place-content-center'>
+        {activeModelId !== null ? (
+            <ModelOption type={activeModelId} removeModel={removeModel} className="object-center"/>
+        ) : <div className="bg-gray-300 rounded-lg border-dashed border-black border-2 w-full h-full font-signika">Drag a model here!</div>}
       </CardBody>
     </Card>
     </div>
@@ -198,8 +198,8 @@ function TrainRun({ model_name, features, setFeedback }) {
 
 function FeedbackBar({feedback}) {
   return (
-    <div className="w-full ml-3 mr-0 mt-2 border-slate-300 border-2 rounded-lg">
-    <Card className="">
+    <div className="w-full h-full ml-3 mt-2 border-slate-300 border-2 rounded-lg">
+    <Card className="h-full">
       <CardHeader>
         <Heading size='md text-center'>Feedback</Heading>
       </CardHeader>
@@ -242,7 +242,7 @@ function ProblemDrawer() {
 
 function DnDBar({availableModels, availableFeatures}) {
   return (
-    <Tabs isFitted variant='unstyled' className="w-full border-2 border-slate-300 mt-2 ml-3 rounded-lg">
+    <Tabs isFitted variant='unstyled' className="w-2/3 border-2 ml-3 border-slate-300 mt-2 rounded-lg">
       < TabList >
         <Tab className="text-blue-800 hover:bg-gray-300">Features</Tab>
         <Tab className="text-blue-800 hover:bg-gray-300">Model</Tab>
@@ -297,8 +297,9 @@ function ModelOption({ type, removeModel}) {
 
 
   return (
-    <div className="flex flex-row items-center">
-    {removeModel !== undefined && <Button size="xs" className="mr-2 ml-0" onClick={removeModel}>X</Button>}
+    <div className="align-middle flex flex-row justify-center">
+      <div className="flex flex-row justify-center items-center">
+    {removeModel !== undefined && <Button size="xs" className="mr-2 ml-0 align-middle" onClick={removeModel}>X</Button>}
     <Card className='m-3' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <CardHeader>
         <Text className='font-bold text-blue-800'>{type}</Text>
@@ -307,6 +308,7 @@ function ModelOption({ type, removeModel}) {
         <Text>Model</Text>
       </CardBody> */}
     </Card>
+    </div>
     </div>
   );
 }
@@ -403,11 +405,9 @@ export function Level() {
           <TrainRun model_name={model} features={activeFeatures} setFeedback={setFeedback}/>
         </Box>
       </div>
-      <div className='w-full h-800 inline-flex'>
-        <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full inline-block'>
-          <FeedbackBar />
-        </Box>
-        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full inline-block'>
+      <div className='w-full h-[800] inline-flex'>
+        <Box display="flex" alignItems="top" className='m-0 w-full h-full items-stretch'>
+          <div className="w-1/3 items-stretch grid mr-2 mb-2"><FeedbackBar /></div>
           <DnDBar availableModels={availableModels} availableFeatures={availableFeatures}/>
           {/* <Text>Select Features</Text>
         {features.map((feature) => {
