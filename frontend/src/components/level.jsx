@@ -1,9 +1,10 @@
-import { Card, HStack, Container, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Card, HStack, useDisclosure, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, Container, Tooltip, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
 import { CSS } from '@dnd-kit/utilities';
 import { evalModel, generateData, trainModel } from '../helpers/callEndpoint';
+import { HiArrowRight, HiArrowLeft } from "react-icons/hi";
 
 const uid = "user_10";
 
@@ -122,7 +123,7 @@ function Model({ activeModelId, setActiveModelId, availableModels, setAvailableM
   };
 
   return (
-    <Card className="w-1/3 h-full m-1" ref={setNodeRef} style={style}>
+    <Card className="w-1/3 h-full m-4" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-bold'>Model</CardHeader>
       <CardBody className='text-center flex items-center justify-center'>
         {activeModelId !== null && (
@@ -133,7 +134,7 @@ function Model({ activeModelId, setActiveModelId, availableModels, setAvailableM
   );
 }
 
-function TrainRun({model_name, features}) {
+function TrainRun({ model_name, features }) {
   const [evalResult, setEvalResult] = useState(null);
   const evalModelPerf = async () => {
     const res = await evalModel(uid, "FoolsGold", model_name, features);
@@ -141,18 +142,18 @@ function TrainRun({model_name, features}) {
     setEvalResult(res.result);
   }
   return (
-    <Card id="trainrun" className="w-1/3 h-full relative">
+    <Card id="trainrun" className="w-1/3 h-full relative mr-3">
       <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
       <CardBody className='text-center flex items-center h-full'>
         <div className="absolute h-3/4 top-0">
           <div id="visualization"></div>
-          
+
         </div>
-        {evalResult !== null ? <Text className='mb-3 font-bold text-center justify-center'>Accuracy: {Math.round(evalResult.accuracy*100)}%</Text> : <></>}
+        {evalResult !== null ? <Text className='mb-3 font-bold text-center justify-center'>Accuracy: {Math.round(evalResult.accuracy * 100)}%</Text> : <></>}
 
         <div className="absolute h-1/4 bottom-0">
           {/* <Text className='font-bold'>Train</Text> */}
-          
+
           <Button className="mr-3" onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
           <Button onClick={() => evalModelPerf()}>Run Model</Button>
         </div>
@@ -163,9 +164,9 @@ function TrainRun({model_name, features}) {
 
 function FeedbackBar() {
   return (
-    <Card className="w-full m-3">
+    <Card className="w-1/3 ml-3 mt-3">
       <CardHeader>
-        <Heading size='md text-center justify-center'>Feedback</Heading>
+        <Heading size='md text-center'>Feedback</Heading>
       </CardHeader>
       <CardBody>
         <div className="w-full h-1000">
@@ -176,15 +177,70 @@ function FeedbackBar() {
   );
 }
 
+function ProblemDrawer() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  return (
+    <div id="drawer">
+      <div className="m-4" id="icon">
+        <Tooltip hasArrow label='Read the problem' bg='blue.800'>
+          <button onClick={onOpen}>
+            <HiArrowRight size={32} />
+          </button>
+        </Tooltip>
+      </div>
+      <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} onClose={onClose} size={'md'}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader borderBottomWidth='1px'>Lesson One: Sample Size</DrawerHeader>
+          <DrawerBody>
+            <p>Some contents...</p>
+            <p>Some contents...</p>
+            <p>Some contents...</p>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+    </div>
+  )
+}
+
+function ProblemDrawer() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  return (
+    <div id="drawer">
+      <div className="m-4" id="icon">
+        <Tooltip hasArrow label='Read the problem' bg='blue.800'>
+          <button onClick={onOpen}>
+            <HiArrowRight size={32} />
+          </button>
+        </Tooltip>
+      </div>
+      <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} onClose={onClose} size={'md'}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader borderBottomWidth='1px'>Lesson One: Sample Size</DrawerHeader>
+          <DrawerBody>
+            <p>Some contents...</p>
+            <p>Some contents...</p>
+            <p>Some contents...</p>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+    </div>
+  )
+}
+
 function DnDBar({availableModels, availableFeatures}) {
   return (
-    <Tabs className="w-full">
-      < TabList >
-        <Tab>Features</Tab>
-        <Tab>Model</Tab>
-        <Tab>Training</Tab>
-        <Tab>Run</Tab>
-      </TabList >
+    <Card className="w-2/3 m-4 mr-3 mt-3">
+      <Tabs className="w-full">
+        < TabList >
+          <Tab>Features</Tab>
+          <Tab>Model</Tab>
+          <Tab>Training</Tab>
+          <Tab>Run</Tab>
+        </TabList >
 
       <TabPanels>
         <TabPanel>
@@ -264,13 +320,13 @@ function FeatureOption({ type }) {
   );
 
 }
-            // "label": labels,
-            // "hardness": hardness,
-            // "density": density,
-            // "conductivity": conductivity,
-            // "shininess": shininess,
-            // "shape": shapes,
-            // "texture": textures,
+// "label": labels,
+// "hardness": hardness,
+// "density": density,
+// "conductivity": conductivity,
+// "shininess": shininess,
+// "shape": shapes,
+// "texture": textures,
 
 const modelOptions = ["Decision Tree", "Logistic Regression", "K-Nearest Neighbors"];
 const features = ["Conductivity", "Density", "Hardness", "Shape", "Shininess", "Texture"];
@@ -313,14 +369,20 @@ export function Level() {
   }, [activeModelId]);
   useEffect(() => {
     console.log("UPDATING ACTIVE FEATURES");
-    if(activeFeatureId !== null){
+    if (activeFeatureId !== null) {
+
+      // console.log(activeFeatureId);
+      // setActiveFeatureId(activeFeatureId);
       setActiveFeatures([...activeFeatures, activeFeatureId]);
       setAvailableFeatures(availableFeatures.filter((feature) => feature !== activeFeatureId));
     }
   }, [activeFeatureId]);
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <h1 className='text-4xl text-center pb-10'>Fools Gold</h1>
+      <div className="flex w-full relative" id="TopBar">
+        <ProblemDrawer />
+        <h1 className='text-4xl text-center w-full pb-10'>Fool's Gold</h1>
+      </div>
       <div className='w-full h-2/3 inline-flex'>
         <Box display="flex" alignItems="center" className='m-0 w-full'>
           <Data activeFeatures={activeFeatures} setActiveFeatures={setActiveFeatures} availableFeatures={availableFeatures} setAvailableFeatures={setAvailableFeatures}/>
@@ -328,11 +390,9 @@ export function Level() {
           <TrainRun model_name={model} features={activeFeatures}/>
         </Box>
       </div>
-      <div className='w-full h-800 inline-flex'>
-        <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full inline-block'>
+      <div className='w-full h-1/3 inline-flex'>
+        <Box display="flex" alignItems="center" className='m-0 w-full h-full inline-block'>
           <FeedbackBar />
-        </Box>
-        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full p-10 inline-block'>
           <DnDBar availableFeatures={availableFeatures} availableModels={availableModels}/>
           {/* <Text>Select Features</Text>
         {features.map((feature) => {
