@@ -66,7 +66,7 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
     <div className="w-1/3 h-full ml-3 mr-1 border-2 border-slate-300 rounded-lg">
     <Card id="data" className="rounded-lg h-full" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-lilitaOne'>Data ({numSamples} samples)</CardHeader>
-      <CardBody className='text-center flex flex-col justify-end items-center pb-0'>
+      <CardBody className='text-center flex flex-col justify-center items-center pb-0'>
         {/* <Text className='text-bold'>Gold v. Fool's Gold Properties ({numSamples} samples)</Text> */}
         {activeFeatures.length === 0 ? <div className="bg-gray-300 rounded-lg border-dashed border-black border-2 w-full h-full font-signika">Drag some features here!</div> : <></>}
         <TableContainer className='mt-0 mb-3'>
@@ -139,7 +139,7 @@ function Model({ activeModelId, setActiveModelId, availableModels, setAvailableM
     <div className="w-1/3 h-full m-1 border-2 border-slate-300 rounded-lg">
     <Card className="h-full rounded-lg" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-lilitaOne flex items-center justify-center'>Model</CardHeader>
-      <CardBody className='text-center place-content-center'>
+      <CardBody className='text-center place-content-center justify-center'>
         {activeModelId !== null ? (
             <ModelOption type={activeModelId} removeModel={removeModel} className="object-center"/>
         ) : <div className="bg-gray-300 rounded-lg border-dashed border-black border-2 w-full h-full font-signika">Drag a model here!</div>}
@@ -151,6 +151,7 @@ function Model({ activeModelId, setActiveModelId, availableModels, setAvailableM
 
 function TrainRun({ model_name, features, setFeedback }) {
   const [evalResult, setEvalResult] = useState(null);
+  const [confusion, setConfusion] = useState([]);
   const evalModelPerf = async () => {
     const res = await evalModel(uid, "FoolsGold", model_name, features);
     console.log(res);
@@ -162,6 +163,7 @@ function TrainRun({ model_name, features, setFeedback }) {
     setFeedback("...");
   }
   const [training, setTraining] = useState(false);
+  const [running, setRunning] = useState(false);
   
   return (
     <div className="w-1/3 h-full ml-1 border-2 border-slate-300 rounded-lg ">
@@ -172,6 +174,26 @@ function TrainRun({ model_name, features, setFeedback }) {
           <div id="visualization"></div>
 
         </div>
+        {evalResult !== null ? <>
+        <Grid templateRows='repeat(3, 1fr)' templateColumns='repeat(4, 1fr)' gap={1} className="mb-4 font-signika">
+        <GridItem rowSpan={1} colSpan={1}></GridItem>
+        <GridItem rowSpan={1} colSpan={2} className="align-middle"><text className="align-text-bottom">Predicted</text></GridItem>
+        <GridItem rowSpan={3} colSpan={1}></GridItem>
+        <GridItem rowSpan={2} colSpan={1} className="py-10 -rotate-90">Actual</GridItem>
+          <GridItem rowSpan={1} colSpan={1} className="bg-green-400 rounded-sm p-4">
+            {evalResult.confusion_matrix[0]}
+          </GridItem>
+          <GridItem rowSpan={1} colSpan={1} className="bg-red-400 rounded-sm p-4">
+          {evalResult.confusion_matrix[1]}
+          </GridItem>
+          <GridItem rowSpan={1} colSpan={1} className="bg-red-400 rounded-sm p-4">
+          {evalResult.confusion_matrix[2]}
+          </GridItem>
+          <GridItem rowSpan={1} colSpan={1} className="bg-green-400 rounded-sm p-4">
+          {evalResult.confusion_matrix[3]}
+          </GridItem>
+        </Grid>
+        </> : <></>}
         {evalResult !== null ? <Text className='mb-3 font-bold text-center justify-center'>Accuracy: {Math.round(evalResult.accuracy * 100)}%</Text> : <></>}
 
         <div className="h-1/4 align-middle flex flex-row justify-center">
@@ -183,11 +205,15 @@ function TrainRun({ model_name, features, setFeedback }) {
             await new Promise( res => setTimeout(res, 1000));
             setTraining(false);
           }}>
-              {training ? <>Loading...</> : 
+              {training ? <Text className="text-blue-800 font-signika">Loading...</Text> : 
             <Text className="text-blue-800 font-signika">Train Model</Text>}</Button>
-          <Button colorScheme="white" onClick={() => evalAndFeedBack()} className="hover:bg-gray-300 border-blue-800 border-2">
-          <Text className="text-blue-800 font-signika">Run Model</Text>
-          </Button>
+          <Button colorScheme="white" onClick={async () => {
+            setRunning(true);
+            await evalAndFeedBack();
+            setRunning(false);
+          }} className="hover:bg-gray-300 border-blue-800 border-2">
+{running ? <Text className="text-blue-800 font-signika">Loading...</Text> : 
+            <Text className="text-blue-800 font-signika">Run Model</Text>}          </Button>
         </div>
       </CardBody>
     </Card >
