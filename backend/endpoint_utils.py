@@ -137,7 +137,7 @@ def evaluate_model(
     accuracy = accuracy_score(y_test, predictions)
 
     # Return evaluation metrics
-    return {"accuracy": accuracy}
+    return {"accuracy": np.round(accuracy, 3)}
 
 
 def setup_predictionguard_token(token: str) -> None:
