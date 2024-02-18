@@ -13,6 +13,10 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
+from typing import List
+import os
+import json
+import predictionguard as pg
 
 
 def user_model_to_model_name(user_model: str) -> str:
@@ -27,7 +31,6 @@ def user_model_to_model_name(user_model: str) -> str:
         raise ValueError("Bad model type")
 
 
-# generate data for a specific problem for the user
 def gen_data(
     db: Client, uid: str, problem_name: str, n: int, train: bool = True
 ) -> None:
@@ -147,3 +150,51 @@ def evaluate_model(
 
     # Return evaluation metrics
     return {"accuracy": accuracy}
+
+
+def setup_predictionguard_token(token: str) -> None:
+    os.environ["PREDICTIONGUARD_TOKEN"] = token
+
+
+def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str, accuracy: float) -> str:
+    # Define the initial system message
+    system_message = {
+        "role": "system",
+        "content": """
+        As an AI embedded in an educational platform, your role is to assist young students in understanding the basics of machine learning through hands-on experiments. Your responses should strictly follow a structured methodology, guiding students based on their experiment inputs without offering additional information beyond what is necessary.
+
+        When providing feedback, adhere to the following template based on the student's experiment parameters:
+
+        1. If the dataset size (n) is less than 250, respond with:
+        "Nice job on starting your experiment! If your accuracy isn't quite where you want it to be, consider how more data might help your model learn better. What happens if you increase your dataset?"
+
+        2. If n > 250 but the chosen features do not include both 'texture' and 'hardness', respond with:
+        "Great effort! It looks like you're exploring different features. If you're not seeing the results you hoped for, think about other features you haven't tried yet. There's always room to experiment and find what works best."
+
+        3. If n > 250, features include 'texture' and 'hardness', but the model is not a Decision Tree, respond with:
+        "You're doing well by trying out different models. If the accuracy isn't meeting your expectations, think about how changing the model type might impact your results. Different types of models perform better on different data"
+
+        Your feedback must directly correspond to these scenarios without expanding beyond the provided templates. This approach ensures clarity and consistency in guiding students through their machine learning journey, encouraging them to explore and learn through experimentation while adhering to the structured feedback methodology.
+        """
+    }
+
+    # Define a user message template filled with actual experiment details
+    user_message = {
+        "role": "user",
+        "content": f"I used {features} as features with a dataset size of {n} to train a {model_type} model, and I got an accuracy of {accuracy}."
+    }
+
+    # Combine the system message and the user message into the messages list
+    messages = [system_message, user_message]
+
+    # Create a chat session with Prediction Guard, using the defined messages
+    setup_predictionguard_token("q1VuOjnffJ3NO2oFN8Q9m8vghYc84ld13jaqdF7E")
+    result = pg.Chat.create(
+        model="Neural-Chat-7B",
+        messages=messages
+    )
+
+    # Extract the content from the result
+    feedback_content = result['choices'][0]['message']['content']
+
+    return feedback_content
