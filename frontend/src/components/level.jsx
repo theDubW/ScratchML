@@ -347,7 +347,9 @@ function ModelOption({ type, removeModel}) {
     {removeModel !== undefined && <Button size="xs" className="mr-2 ml-0 align-middle" onClick={removeModel}>X</Button>}
     <Card className='m-3' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <CardHeader>
+      <Tooltip label={modelBlurbs[modelOptions.indexOf(type)]} aria-label='A tooltip' className="border-2 border-blue-800 rounded-lg">
         <Text className='font-bold text-blue-800'>{type}</Text>
+      </Tooltip>
       </CardHeader>
       {/* <CardBody>
         <Text>Model</Text>
@@ -387,6 +389,8 @@ function FeatureOption({ type }) {
 // "texture": textures,
 
 const modelOptions = ["Decision Tree", "Logistic Regression", "K-Nearest Neighbors"];
+const modelBlurbs = ["Decision trees are like playing a game of \"20 Questions\" to make a choice or prediction. Starting with a big question at the top, each answer leads you down different paths with more questions until you reach the final decision at the bottom.", "Logistic regression is a math tool that helps us predict the chance of something happening (like winning a game) based on certain factors (like team skill levels). It works by taking our information and crunching the numbers to give a \"yes or no\" answer, sort of like making an educated guess.",
+"KNN, or K-Nearest Neighbors, is like making friends based on similarities. If you want to know if you'll like a new game, you see what the closest (most similar) games you already like suggest about it, using the opinions of the \"nearest\" few to make your decision."]
 const features = ["Conductivity", "Density", "Hardness", "Shape", "Shininess", "Texture"];
 
 export function Level() {
@@ -405,8 +409,8 @@ export function Level() {
       if(activeModelId !== null && activeModelId !== event.active.id){
         setAvailableModels([...availableModels, activeModelId]);
       }
+      console.log(event.active.id);
       setActiveModelId(event.active.id);
-      
       console.log("available models", availableModels);
     }
     // change features available
@@ -417,7 +421,6 @@ export function Level() {
   useEffect(() => {
     console.log("in active model use effect")
     if(activeModelId !== null){
-      console.log("model id ", activeModelId, "available models", availableModels);
       // const newAvailableModels = availableModels.filter((m) => m !== activeModelId);
       // setAvailableModels(newAvailableModels);
       // setActiveModelId(activeModelId);
