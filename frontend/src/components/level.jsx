@@ -5,6 +5,7 @@ import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
 import { CSS } from '@dnd-kit/utilities';
 import { evalModel, generateData, trainModel } from '../helpers/callEndpoint';
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi";
+import Sand from '../sand.png';
 
 const uid = "user_10";
 
@@ -393,6 +394,7 @@ export function Level() {
     }
   }, [activeFeatureId]);
   return (
+    <>
     <DndContext onDragEnd={handleDragEnd}>
       <div className="flex w-full relative" id="TopBar">
         <ProblemDrawer />
@@ -418,5 +420,7 @@ export function Level() {
 
 
     </DndContext>
+        <img src={Sand} alt="sand"/>
+    </>
   );
 }
