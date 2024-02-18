@@ -177,17 +177,15 @@ function TrainRun({ model_name, features, setFeedback }) {
         <div className="h-1/4 align-middle flex flex-row justify-center">
           {/* <Text className='font-bold'>Train</Text> */}
           
-          <Button colorScheme="white" className="mr-3 hover:bg-gray-300 border-blue-800 border-2" onClick={() => 
-          async function train() {
+          <Button colorScheme="white" className="mr-3 hover:bg-gray-300 border-blue-800 border-2" onClick={async () => {
             setTraining(true);
             trainModel(uid, "FoolsGold", model_name, features);
             await new Promise( res => setTimeout(res, 1000));
             setTraining(false);
-          }
-            }>
+          }}>
               {training ? <>Loading...</> : 
             <Text className="text-blue-800 font-signika">Train Model</Text>}</Button>
-          <Button colorScheme="white" onClick={() => evalModelPerf()} className="hover:bg-gray-300 border-blue-800 border-2">
+          <Button colorScheme="white" onClick={() => evalAndFeedBack()} className="hover:bg-gray-300 border-blue-800 border-2">
           <Text className="text-blue-800 font-signika">Run Model</Text>
           </Button>
         </div>
@@ -409,7 +407,7 @@ export function Level() {
       </div>
       <div className='w-full h-[800] inline-flex'>
         <Box display="flex" alignItems="top" className='m-0 w-full h-full items-stretch'>
-          <div className="w-1/3 items-stretch grid mr-2 mb-2"><FeedbackBar /></div>
+          <div className="w-1/3 items-stretch grid mr-2 mb-2"><FeedbackBar feedback={feedback}/></div>
           <DnDBar availableModels={availableModels} availableFeatures={availableFeatures}/>
           {/* <Text>Select Features</Text>
         {features.map((feature) => {
