@@ -157,37 +157,76 @@ def setup_predictionguard_token(token: str) -> None:
 
 
 def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str, accuracy: float) -> str:
-    # Define the initial system message
-    system_message = {
+    system_message_1 = {
         "role": "system",
         "content": """
-        As an AI embedded in an educational platform, your role is to assist young students in understanding the basics of machine learning through hands-on experiments. Your responses should strictly follow a structured methodology, guiding students based on their experiment inputs without offering additional information beyond what is necessary.
+        Guide students when their dataset size is small. Encourage exploring the impact of dataset size on model accuracy.
 
-        When providing feedback, adhere to the following updated template based on the student's experiment parameters:
-
-        1. If the accuracy is over 95%, respond with:
-        "Congratulations on achieving such high accuracy! You've done an excellent job. Feel free to keep exploring with different features and models or continue to the next problem to learn more."
-
-        2. If the dataset size (n) is less than 250, respond with:
+        Feedback template:
         "Nice job on starting your experiment! If your accuracy isn't quite where you want it to be, consider how more data might help your model learn better. What happens if you increase your dataset?"
-
-        3. If n > 250 but the chosen features do not include both 'texture' and 'hardness', respond with:
-        "Great effort! It looks like you're exploring different features. If you're not seeing the results you hoped for, think about other features you haven't tried yet. There's always room to experiment and find what works best."
-
-        4. If n > 250, features include 'texture' and 'hardness', but the model is not a Decision Tree, respond with:
-        "You're doing well by trying out different models. If the accuracy isn't meeting your expectations, think about how changing the model type might impact your results. Different types of models perform better on different data."
-
-        Your feedback must directly correspond to these scenarios without expanding beyond the provided templates. This approach ensures clarity and consistency in guiding students through their machine learning journey, encouraging them to explore and learn through experimentation while adhering to the structured feedback methodology.
         """
     }
-
-    # Define a user message template filled with actual experiment details
-    user_message = {
+    user_message_template_1 = {
         "role": "user",
-        "content": f"I used {features} as features with a dataset size of {n} to train a {model_type} model, and I got an accuracy of {accuracy}."
+        "content": "I used a dataset size of {n}, and got accuracy {accuracy}."
     }
 
-    # Combine the system message and the user message into the messages list
+    system_message_2 = {
+        "role": "system",
+        "content": """
+        Focus on guiding students in exploring different feature combinations to improve model accuracy. All available features include: ["hardness", "density", "conductivity", "shininess", "shape", "texture"].
+
+        Feedback template:
+        "Great effort! It looks like you're exploring different features. If you're not seeing the results you hoped for, think about other features you haven't tried yet. There's always room to experiment and find what works best."
+        """
+    }
+    user_message_template_2 = {
+        "role": "user",
+        "content": "I used {features} as features for my model and got accuracy {accuracy}."
+    }
+
+    system_message_3 = {
+        "role": "system",
+        "content": """
+        Guide students on the importance of experimenting with different model types when the chosen model isn't yielding the expected accuracy.
+
+        Feedback template:
+        "You're making good progress! If the model you chose isn't providing the results you hoped for, consider testing out other models. Each model type has its strengths, and switching it up could reveal what works best for your dataset."
+        """
+    }
+    user_message_template_3 = {
+        "role": "user",
+        "content": "I trained a {model_type} model and achieved an accuracy of {accuracy}."
+    }
+
+    system_message_4 = {
+        "role": "system",
+        "content": """
+        Celebrate the student's achievement and guide them on next steps after achieving satisfactory results.
+
+        Feedback template:
+        "Congratulations on achieving such great results! Your experiment shows you're learning the ropes of machine learning. Feel free to experiment more or consider moving on to the next lesson to continue expanding your skills."
+        """
+    }
+    user_message_template_4 = {
+        "role": "user",
+        "content": "My model achieved an accuracy of {accuracy}."
+    }
+
+    # Select the appropriate messages based on input parameters
+    if n < 250:
+        system_message, user_message_template = system_message_1, user_message_template_1
+    elif not all(feature in features for feature in ["texture", "hardness"]):
+        system_message, user_message_template = system_message_2, user_message_template_2
+    elif model_type != "decision_tree":
+        system_message, user_message_template = system_message_3, user_message_template_3
+    else:
+        system_message, user_message_template = system_message_4, user_message_template_4
+
+    # Format the user message with the experiment details
+    user_message = {"role": "user", "content": user_message_template['content'].format(n=n, features=features, model_type=model_type, accuracy=accuracy)}
+
+    # Combine the system message and the user message for the session
     messages = [system_message, user_message]
 
     # Create a chat session with Prediction Guard, using the defined messages

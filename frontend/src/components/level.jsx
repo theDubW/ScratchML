@@ -65,7 +65,7 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
   return (
     <div className="w-1/3 h-full ml-3 mr-1 border-2 border-slate-300 rounded-lg">
     <Card id="data" className="rounded-lg h-full" ref={setNodeRef} style={style}>
-      <CardHeader className='text-center font-lilitaOne'>Data</CardHeader>
+      <CardHeader className='text-center font-lilitaOne'>Data ({numSamples} samples)</CardHeader>
       <CardBody className='text-center flex flex-col justify-end items-center pb-0'>
         {/* <Text className='text-bold'>Gold v. Fool's Gold Properties ({numSamples} samples)</Text> */}
         {activeFeatures.length === 0 ? <div className="bg-gray-300 rounded-lg border-dashed border-black border-2 w-full h-full font-signika">Drag some features here!</div> : <></>}
@@ -422,3 +422,5 @@ export function Level() {
     </>
   );
 }
+
+export {FeedbackBar};
