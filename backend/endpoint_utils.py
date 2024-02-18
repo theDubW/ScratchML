@@ -13,10 +13,19 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
-from typing import List
+from typing import List, Tuple, Any
 import os
-import json
 import predictionguard as pg
+import torch
+import torch.utils
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+
+# import intel_extension_for_pytorch as ipex
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader, Subset
 
 
 def gen_data(
@@ -144,15 +153,26 @@ def evaluate_model(
     # Return evaluation metrics including the confusion matrix
     return {
         "accuracy": np.round(accuracy, 3),
-        "confusion_matrix": cm_flattened.tolist()  # Convert numpy array to list for JSON serialization
+        "confusion_matrix": cm_flattened.tolist(),  # Convert numpy array to list for JSON serialization
     }
+
+
+def translateLayerToCode(layer_name):
+    if layer_name == "Convolutional":
+        return "conv"
+    elif layer_name == "Linear":
+        return "linear"
+    else:
+        return ValueError("Bad layer type")
 
 
 def setup_predictionguard_token(token: str) -> None:
     os.environ["PREDICTIONGUARD_TOKEN"] = token
 
 
-def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str, accuracy: float) -> str:
+def generate_ml_experiment_feedback(
+    n: int, features: List[str], model_type: str, accuracy: float
+) -> str:
     system_message_1 = {
         "role": "system",
         "content": """
@@ -160,11 +180,11 @@ def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str
 
         Feedback template:
         "Nice job on starting your experiment! If your accuracy isn't quite where you want it to be, consider how more data might help your model learn better. What happens if you increase your dataset?"
-        """
+        """,
     }
     user_message_template_1 = {
         "role": "user",
-        "content": "I used a dataset size of {n}, and got accuracy {accuracy}."
+        "content": "I used a dataset size of {n}, and got accuracy {accuracy}.",
     }
 
     system_message_2 = {
@@ -174,11 +194,11 @@ def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str
 
         Feedback template:
         "Great effort! It looks like you're exploring different features. If you're not seeing the results you hoped for, think about other features you haven't tried yet. There's always room to experiment and find what works best."
-        """
+        """,
     }
     user_message_template_2 = {
         "role": "user",
-        "content": "I used {features} as features for my model and got accuracy {accuracy}."
+        "content": "I used {features} as features for my model and got accuracy {accuracy}.",
     }
 
     system_message_3 = {
@@ -188,11 +208,11 @@ def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str
 
         Feedback template:
         "You're making good progress! If the model you chose isn't providing the results you hoped for, consider testing out other models. Each model type has its strengths, and switching it up could reveal what works best for your dataset."
-        """
+        """,
     }
     user_message_template_3 = {
         "role": "user",
-        "content": "I trained a {model_type} model and achieved an accuracy of {accuracy}."
+        "content": "I trained a {model_type} model and achieved an accuracy of {accuracy}.",
     }
 
     system_message_4 = {
@@ -202,37 +222,281 @@ def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str
 
         Feedback template:
         "Congratulations on achieving such great results! Your experiment shows you're learning the ropes of machine learning. Feel free to experiment more or consider moving on to the next lesson to continue expanding your skills."
-        """
+        """,
     }
     user_message_template_4 = {
         "role": "user",
-        "content": "My model achieved an accuracy of {accuracy}."
+        "content": "My model achieved an accuracy of {accuracy}.",
     }
 
     # Select the appropriate messages based on input parameters
     if n < 250:
-        system_message, user_message_template = system_message_1, user_message_template_1
+        system_message, user_message_template = (
+            system_message_1,
+            user_message_template_1,
+        )
     elif not all(feature in features for feature in ["Texture", "Hardness"]):
-        system_message, user_message_template = system_message_2, user_message_template_2
+        system_message, user_message_template = (
+            system_message_2,
+            user_message_template_2,
+        )
     elif model_type != "Decision Tree":
-        system_message, user_message_template = system_message_3, user_message_template_3
+        system_message, user_message_template = (
+            system_message_3,
+            user_message_template_3,
+        )
     else:
-        system_message, user_message_template = system_message_4, user_message_template_4
+        system_message, user_message_template = (
+            system_message_4,
+            user_message_template_4,
+        )
 
     # Format the user message with the experiment details
-    user_message = {"role": "user", "content": user_message_template['content'].format(n=n, features=features, model_type=model_type, accuracy=accuracy)}
+    user_message = {
+        "role": "user",
+        "content": user_message_template["content"].format(
+            n=n, features=features, model_type=model_type, accuracy=accuracy
+        ),
+    }
 
     # Combine the system message and the user message for the session
     messages = [system_message, user_message]
 
     # Create a chat session with Prediction Guard, using the defined messages
     setup_predictionguard_token("q1VuOjnffJ3NO2oFN8Q9m8vghYc84ld13jaqdF7E")
-    result = pg.Chat.create(
-        model="Neural-Chat-7B",
-        messages=messages
-    )
+    result = pg.Chat.create(model="Neural-Chat-7B", messages=messages)
 
     # Extract the content from the result
-    feedback_content = result['choices'][0]['message']['content']
+    feedback_content = result["choices"][0]["message"]["content"]
 
     return feedback_content
+
+
+class Net(nn.Module):
+    def __init__(self, layerList: List[Tuple[str, int]]):
+        super(Net, self).__init__()
+        convList = []
+        idx = 0
+        print("LAYER LIST IN NET: ", layerList)
+        while layerList[idx][0] == "Convolutional":
+            # self.conv1 = nn.Conv2d(in_channels = in_channels, out_channels = out_channels,
+            #                    kernel_size = kernel_size, stride = stride, padding = padding)
+            dim = layerList[idx][1]
+            if idx == 0:
+                convList.append(
+                    nn.Conv2d(
+                        in_channels=1,
+                        out_channels=dim,
+                        kernel_size=5,
+                        stride=1,
+                        padding=2,
+                    )
+                )
+                idx += 1
+                continue
+            prev_dim = layerList[idx - 1][1]
+            convList.append(
+                nn.Conv2d(
+                    in_channels=prev_dim,
+                    out_channels=dim,
+                    kernel_size=5,
+                    stride=1,
+                    padding=2,
+                )
+            )
+            idx += 1
+        first_linear_dim = 28 * 28 * dim
+        first_idx = idx
+        linearList = []
+        while layerList[idx][0] == "Linear":
+            dim = layerList[idx][1]
+            if first_idx == idx:
+                linearList.append(
+                    nn.Linear(in_features=first_linear_dim, out_features=dim)
+                )
+                idx += 1
+                continue
+            prev_dim = layerList[idx - 1][1]
+            linearList.append(nn.Linear(in_features=prev_dim, out_features=dim))
+            idx += 1
+            if idx >= len(layerList):
+                break
+        self.convs = nn.ModuleList([layer for layer in convList])
+        self.linears = nn.ModuleList([layer for layer in linearList])
+        self.output = nn.Linear(in_features=dim, out_features=10)
+
+    def forward(self, x):
+        output = None
+        for idx, layer in enumerate(self.convs):
+            if idx == 0:
+                output = F.relu(layer(x))
+                continue
+            output = F.relu(layer(output))
+        output = output.view(output.size(0), -1)
+        for layer in self.linears:
+            output = F.relu(layer(output))
+        output = self.output(output)
+        return output
+
+
+def load_mnist_data(
+    batch_size: int, mean: float, std: float
+) -> Tuple[DataLoader, DataLoader]:
+    transforms_train = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.RandomCrop(size=(28, 28), padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.Normalize(mean=[mean], std=[std]),
+        ]
+    )
+
+    transforms_test = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize(mean=[mean], std=[std])]
+    )
+
+    mnist_trainset = datasets.MNIST(
+        root="./data", train=True, download=True, transform=transforms_train
+    )
+
+    # Balance the dataset
+    def create_balanced_subset(dataset, num_samples_per_class=160):
+        targets = np.array(dataset.targets)
+        indices_per_class = [np.where(targets == i)[0] for i in range(10)]
+        balanced_indices = np.hstack(
+            [indices[:num_samples_per_class] for indices in indices_per_class]
+        )
+        np.random.shuffle(balanced_indices)
+        return Subset(dataset, balanced_indices)
+
+    balanced_trainset = create_balanced_subset(
+        mnist_trainset, 160
+    )  # 160 samples per class, 1600 in total
+
+    mnist_testset = datasets.MNIST(
+        root="./data", train=False, download=True, transform=transforms_test
+    )
+    balanced_testset = create_balanced_subset(
+        mnist_testset, 40
+    )  # 40 samples per class, 400 in total for validation
+
+    train_loader = DataLoader(
+        balanced_trainset, batch_size=batch_size, shuffle=True, num_workers=0
+    )
+    test_loader = DataLoader(
+        balanced_testset, batch_size=batch_size, shuffle=False, num_workers=0
+    )
+
+    return train_loader, test_loader
+
+
+def train_and_upload_sandbox_model(
+    uid: str,
+    problem_name: str,
+    model_name: str,
+    layer_list: List[Tuple[str, int]],
+    learning_rate: float,
+    epochs: int,
+    optimizer_name: str,
+    criterion_name: str,
+    train_loader: DataLoader,
+) -> None:
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = Net(layer_list).to(device)  # Assuming Net is a defined network architecture
+
+    # Map optimizer name to PyTorch optimizers
+    optimizers = {
+        "SGD": optim.SGD(model.parameters(), lr=learning_rate),
+        "Adam": optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4),
+        "RMSprop": optim.RMSprop(model.parameters(), lr=learning_rate),
+        "Adagrad": optim.Adagrad(model.parameters(), lr=learning_rate),
+    }
+    optimizer = optimizers.get(optimizer_name.replace(" ", ""), None)
+    if optimizer is None:
+        raise ValueError(f"Unsupported optimizer: {optimizer_name}")
+
+    # Map criterion name to PyTorch loss functions
+    criteria = {
+        "Log Loss": nn.BCELoss(),
+        "Cross Entropy": nn.CrossEntropyLoss(),
+        "MSE": nn.MSELoss(),
+        "MAE": nn.L1Loss(),
+    }
+    criterion = criteria.get(criterion_name)
+    if criterion is None:
+        raise ValueError(f"Unsupported criterion: {criterion_name}")
+
+    for epoch in range(epochs):
+        print(f"Epoch {epoch + 1}")
+        model.train()
+        train_loss = 0
+        train_correct = 0
+        total_samples = 0
+
+        for batch_idx, (inputs, targets) in enumerate(train_loader, 0):
+            inputs, targets = inputs.to(device), targets.to(device)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
+            loss.backward()
+            optimizer.step()
+
+            train_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            total_samples += targets.size(0)
+            train_correct += (predicted == targets).sum().item()
+
+        avg_train_loss = train_loss / len(train_loader)
+        train_acc = train_correct / total_samples
+
+        print(f"Train Loss: {avg_train_loss:.4f}, Train Accuracy: {train_acc:.4f}")
+
+    # Add code to upload the model to a database if necessary
+    upload_model_to_storage(uid, problem_name, model_name, model)
+
+
+def evaluate_sandbox_model(
+    uid: str,
+    problem_name: str,
+    model_name: str,
+    test_loader: DataLoader,
+    criterion_name: str,
+) -> None:
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    # Load the model
+    model = download_model_from_storage(uid, problem_name, model_name)
+
+    model.eval()
+    test_loss = 0
+    test_correct = 0
+    total_samples = 0
+
+    # Map criterion name to PyTorch loss functions
+    criteria = {
+        "Log Loss": nn.BCELoss(),
+        "Cross Entropy": nn.CrossEntropyLoss(),
+        "MSE": nn.MSELoss(),
+        "MAE": nn.L1Loss(),
+    }
+    criterion = criteria.get(criterion_name)
+    if criterion is None:
+        raise ValueError(f"Unsupported criterion: {criterion_name}")
+
+    with torch.no_grad():
+        for inputs, targets in test_loader:
+            inputs, targets = inputs.to(device), targets.to(device)
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
+
+            test_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            total_samples += targets.size(0)
+            test_correct += (predicted == targets).sum().item()
+
+    avg_test_loss = test_loss / len(test_loader)
+    test_acc = test_correct / total_samples
+    print(f"Test Loss: {avg_test_loss:.4f}, Test Accuracy: {test_acc:.4f}")
+
+    return {"accuracy": np.round(test_acc, 4), "loss": np.round(avg_test_loss, 4)}

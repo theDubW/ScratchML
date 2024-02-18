@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 .App {
+  height: 100vh;
   text-align: center;
   font: "Lilita One", sans-serif;
 }

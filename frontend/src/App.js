@@ -21,6 +21,7 @@ function App() {
     },
   });
   return (
+    <div className=''>
     <Router>
       <ChakraProvider theme={theme}>
         <Stack direction='row' spacing={4} className="p-4 justify-between border-b border-blue-800">
@@ -46,6 +47,7 @@ function App() {
           </Routes>
       </ChakraProvider>
     </Router>
+    </div>
   );
 }
 

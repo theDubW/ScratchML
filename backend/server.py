@@ -4,6 +4,10 @@ from firebase_admin import credentials, firestore
 from flask_cors import CORS
 import os
 from database_utils import get_data
+import json
+
+# from paramiko import SSHClient
+# from fabric import Connection
 
 # Assuming evaluate_model function is defined in endpoint_utils or a similar module
 from endpoint_utils import (
@@ -11,6 +15,9 @@ from endpoint_utils import (
     train_and_upload_model,
     evaluate_model,
     generate_ml_experiment_feedback,
+    train_and_upload_sandbox_model,
+    evaluate_sandbox_model,
+    load_mnist_data,
 )
 
 
@@ -30,6 +37,18 @@ firebase_admin.initialize_app(
 )
 
 db = firestore.client()
+#
+# client = SSHClient()
+# client.load_system_host_keys("/Users/maxweinreb/.ssh/known_hosts")
+print("connecting")
+# c = Connection("100.82.12.111", user="ubuntu")
+# c.open()
+# print("connected")
+# check if connected
+
+# print("connected")
+# result = c.run("echo YAH")
+# print(result.stdout)
 
 
 # Invoke-WebRequest -Uri http://localhost:5000/gen_data -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "n": 10}'
@@ -85,6 +104,66 @@ def evaluate_user_model():
         {"status": "success", "result": evaluation_results, "feedback": feedback}
     )
 
+
+# Invoke-RestMethod -Uri 'http://localhost:5000/train_sandbox' -Method Post -ContentType "application/json" -Body '{"uid":"user123","problem_name":"MNIST_Classification","model_name":"Custom_CNN","layer_list":[["conv",6],["conv",16],["linear",120],["linear",84]],"learning_rate":0.0001,"epochs":5,"optimizer_name":"Adam","criterion_name":"Cross Entropy","dataset":"MNIST"}'
+
+
+@app.route("/train_sandbox", methods=["POST"])
+def train_sandbox():
+    data = request.get_json()
+    uid = data["uid"]
+    problem_name = data["problem_name"]
+    model_name = data["model_name"]
+    layer_list = data["layer_list"]
+    learning_rate = data["learning_rate"]
+    epochs = data["epochs"]
+    optimizer_name = data["optimizer_name"]
+    criterion_name = data["criterion_name"]
+    dataset = data["dataset"]
+
+    train_loader, _ = load_mnist_data(32, 0.133, 0.31012)
+
+    layer_list_cleaned = []
+    print("LAYER LIST" + str(layer_list))
+    for layer in layer_list:
+        # print(layer)
+        if layer[0] == "Input" or layer[0] == "Output":
+            continue
+        layer_list_cleaned.append(layer)
+    print("CLEANED" + str(layer_list_cleaned))
+
+    train_and_upload_sandbox_model(
+        uid,
+        problem_name,
+        model_name,
+        layer_list_cleaned,
+        learning_rate,
+        epochs,
+        optimizer_name,
+        criterion_name,
+        train_loader,
+    )
+    return jsonify({"status": "success"})
+
+
+# Invoke-RestMethod -Uri 'http://localhost:5000/evaluate_sandbox' -Method Post -ContentType "application/json" -Body '{"uid":"user123","problem_name":"MNIST_Classification","model_name":"Custom_CNN","criterion_name":"Cross Entropy"}'
+
+
+@app.route("/evaluate_sandbox", methods=["POST"])
+def evaluate_sandbox():
+    data = request.get_json()
+    uid = data["uid"]
+    problem_name = data["problem_name"]
+    model_name = data["model_name"]
+    criterion_name = data["criterion_name"]
+
+    _, test_loader = load_mnist_data(32, 0.133, 0.31012)
+
+    evaluation_results = evaluate_sandbox_model(
+        uid, problem_name, model_name, test_loader, criterion_name
+    )
+    print(evaluation_results)
+    return jsonify({"status": "success", "result": evaluation_results})
 
 
 if __name__ == "__main__":
