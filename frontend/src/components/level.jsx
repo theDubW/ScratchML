@@ -1,10 +1,10 @@
-import { Card, HStack, Container, Tooltip, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Card, HStack, useDisclosure, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, Container, Tooltip, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
 import { CSS } from '@dnd-kit/utilities';
 import { evalModel, generateData, trainModel } from '../helpers/callEndpoint';
-import { HiArrowRight } from "react-icons/hi";
+import { HiArrowRight, HiArrowLeft } from "react-icons/hi";
 
 const uid = "user_10";
 
@@ -154,6 +154,33 @@ function FeedbackBar() {
   );
 }
 
+function ProblemDrawer() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  return (
+    <div id="drawer">
+      <div className="m-4" id="icon">
+        <Tooltip hasArrow label='Read the problem' bg='blue.800'>
+          <button onClick={onOpen}>
+            <HiArrowRight size={32} />
+          </button>
+        </Tooltip>
+      </div>
+      <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} onClose={onClose} size={'md'}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader borderBottomWidth='1px'>Lesson One: Sample Size</DrawerHeader>
+          <DrawerBody>
+            <p>Some contents...</p>
+            <p>Some contents...</p>
+            <p>Some contents...</p>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
+    </div>
+  )
+}
+
 function DnDBar() {
   return (
     <Card className="w-2/3 m-4 mr-3 mt-3">
@@ -288,15 +315,9 @@ export function Level() {
   }, [activeFeatureId]);
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <div className="flex w-full" id="TopBar">
-        <div className="m-4" id="icon">
-          <Tooltip hasArrow label='Read the problem' bg='blue.800'>
-            <button>
-              <HiArrowRight size={32} />
-            </button>
-          </Tooltip>
-        </div>
-        <h1 className='text-4xl text-center w-full pb-10'>Fools Gold</h1>
+      <div className="flex w-full relative" id="TopBar">
+        <ProblemDrawer />
+        <h1 className='text-4xl text-center w-full pb-10'>Fool's Gold</h1>
       </div>
       <div className='w-full h-2/3 inline-flex'>
         <Box display="flex" alignItems="center" className='m-0 w-full'>
