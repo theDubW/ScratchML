@@ -12,7 +12,7 @@ from database_utils import (
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from typing import List
 import os
 import json
@@ -136,8 +136,16 @@ def evaluate_model(
     predictions = model.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
 
-    # Return evaluation metrics
-    return {"accuracy": np.round(accuracy, 3)}
+    # Compute confusion matrix
+    cm = confusion_matrix(y_test, predictions)
+    # Flatten the confusion matrix if it's for binary classification
+    cm_flattened = cm.flatten() if cm.size == 4 else cm
+
+    # Return evaluation metrics including the confusion matrix
+    return {
+        "accuracy": np.round(accuracy, 3),
+        "confusion_matrix": cm_flattened.tolist()  # Convert numpy array to list for JSON serialization
+    }
 
 
 def setup_predictionguard_token(token: str) -> None:

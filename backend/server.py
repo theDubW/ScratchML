@@ -78,7 +78,7 @@ def evaluate_user_model():
     data = get_data(db, uid, problem_name, True)
     print("training data length", len(data))
     feedback = generate_ml_experiment_feedback(
-        len(data), features, model_name, evaluation_results
+        len(data), features, model_name, evaluation_results["accuracy"]
     )
     print(feedback)
     return jsonify(
