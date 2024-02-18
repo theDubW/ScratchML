@@ -11,6 +11,9 @@ from endpoint_utils import (
     train_and_upload_model,
     evaluate_model,
     generate_ml_experiment_feedback,
+    train_and_upload_sandbox_model,
+    evaluate_sandbox_model,
+    load_mnist_data
 )
 
 
@@ -83,6 +86,59 @@ def evaluate_user_model():
     print(feedback)
     return jsonify(
         {"status": "success", "result": evaluation_results, "feedback": feedback}
+    )
+
+
+# Invoke-RestMethod -Uri 'http://localhost:5000/train_sandbox' -Method Post -ContentType "application/json" -Body '{"uid":"user123","problem_name":"MNIST_Classification","model_name":"Custom_CNN","layer_list":[["conv",6],["conv",16],["linear",120],["linear",84]],"learning_rate":0.0001,"epochs":5,"optimizer_name":"Adam","criterion_name":"Cross Entropy","dataset":"MNIST"}'
+
+@app.route('/train_sandbox', methods=['POST'])
+def train_sandbox():
+    data = request.get_json() 
+    uid = data["uid"]
+    problem_name = data["problem_name"]
+    model_name = data["model_name"]
+    layer_list = data['layer_list']
+    learning_rate = data['learning_rate']
+    epochs = data['epochs']
+    optimizer_name = data['optimizer_name']
+    criterion_name = data['criterion_name']
+    dataset = data['dataset']
+
+    train_loader, _ = load_mnist_data(32, 0.133, 0.31012)
+
+    train_and_upload_sandbox_model(uid, 
+                                   problem_name,
+                                   model_name,
+                                   layer_list, 
+                                   learning_rate, 
+                                   epochs, 
+                                   optimizer_name,
+                                   criterion_name,
+                                   train_loader)
+    return jsonify({"status": "success"})
+
+
+
+# Invoke-RestMethod -Uri 'http://localhost:5000/evaluate_sandbox' -Method Post -ContentType "application/json" -Body '{"uid":"user123","problem_name":"MNIST_Classification","model_name":"Custom_CNN","criterion_name":"Cross Entropy"}'
+
+@app.route('/evaluate_sandbox', methods=['POST'])
+def evaluate_sandbox():
+    data = request.get_json()
+    uid = data["uid"]
+    problem_name = data["problem_name"]
+    model_name = data["model_name"]
+    criterion_name = data['criterion_name']
+
+    _, test_loader = load_mnist_data(32, 0.133, 0.31012)
+
+    evaluation_results = evaluate_sandbox_model(uid, 
+                                                problem_name, 
+                                                model_name, 
+                                                test_loader,
+                                                criterion_name)
+    print(evaluation_results)
+    return jsonify(
+        {"status": "success", "result": evaluation_results}
     )
 
 
