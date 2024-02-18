@@ -10,6 +10,8 @@ from endpoint_utils import (
     train_and_upload_model,
     evaluate_model,
     user_model_to_model_name,
+    generate_ml_experiment_feedback,
+    setup_predictionguard_token
 )
 
 
@@ -48,8 +50,8 @@ def gen_user_data():
     return jsonify({"status": "success"})
 
 
-# Invoke-WebRequest -Uri http://localhost:5000/train -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}'
-# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}' http://localhost:5000/train
+# Invoke-WebRequest -Uri http://localhost:5000/train -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}'
+# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}' http://localhost:5000/train
 @app.route("/train", methods=["POST"])
 def train_model():
     data = request.get_json()
@@ -63,10 +65,8 @@ def train_model():
     return jsonify({"status": "success"})
 
 
-# Invoke-WebRequest -Uri http://localhost:5000/evaluate -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}'
-# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "decision_tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}' http://localhost:5000/evaluate
-
-
+# Invoke-WebRequest -Uri http://localhost:5000/evaluate -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}'
+# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}' http://localhost:5000/evaluate
 @app.route("/evaluate", methods=["POST"])
 def evaluate_user_model():
     data = request.get_json()
@@ -77,7 +77,11 @@ def evaluate_user_model():
 
     evaluation_results = evaluate_model(db, uid, problem_name, model_name, features)
     print(evaluation_results)
-    return jsonify({"status": "success", "result": evaluation_results})
+
+    # Generate feedback using the evaluation results
+    feedback = generate_ml_experiment_feedback(len(data) * 5, features, model_name, evaluation_results)
+    print(feedback)
+    return jsonify({"status": "success", "result": evaluation_results, "feedback": feedback})
 
 
 # bucket = storage.bucket()
