@@ -12,23 +12,11 @@ from database_utils import (
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from typing import List
 import os
 import json
 import predictionguard as pg
-
-
-def user_model_to_model_name(user_model: str) -> str:
-    if user_model == "Decision Tree":
-        return "decision_tree"
-    elif user_model == "Logistic Regression":
-        return "logistic_regression"
-    elif user_model == "K-Nearest Neighbors":
-        return "knn"
-    else:
-        print(user_model)
-        raise ValueError("Bad model type")
 
 
 def gen_data(
@@ -69,13 +57,13 @@ def gen_data(
     # Create DataFrame
     new_data = pd.DataFrame(
         {
-            "label": labels,
-            "hardness": hardness,
-            "density": density,
-            "conductivity": conductivity,
-            "shininess": shininess,
-            "shape": shapes,
-            "texture": textures,
+            "Label": labels,
+            "Hardness": hardness,
+            "Density": density,
+            "Conductivity": conductivity,
+            "Shininess": shininess,
+            "Shape": shapes,
+            "Texture": textures,
         }
     )
     print("Getting past")
@@ -102,20 +90,20 @@ def train_and_upload_model(
 
     # Filter the DataFrame to only include the specified features before one-hot encoding
     # Assuming 'label' is not included in the features list and is added separately
-    filtered_df = raw_df[features + ["label"]]
+    filtered_df = raw_df[features + ["Label"]]
 
     # Apply one-hot encoding to the filtered DataFrame
     df = one_hot_encoding(filtered_df)
 
-    X = df.drop("label", axis=1)
-    y = df["label"]
+    X = df.drop("Label", axis=1)
+    y = df["Label"]
 
     # Determine model type
-    if model_type == "decision_tree":
+    if model_type == "Decision Tree":
         model = DecisionTreeClassifier()
-    elif model_type == "logistic_regression":
+    elif model_type == "Logistic Regression":
         model = LogisticRegression(max_iter=1000)
-    elif model_type == "knn":
+    elif model_type == "K-Nearest Neighbors":
         model = KNeighborsClassifier()
     else:
         print(model_type)
@@ -133,13 +121,13 @@ def evaluate_model(
     raw_df = get_data(db, uid, problem_name, train=False)
 
     # Filter the DataFrame to only include the specified features before one-hot encoding
-    filtered_df = raw_df[features + ["label"]]
+    filtered_df = raw_df[features + ["Label"]]
 
     # Apply one-hot encoding to the filtered DataFrame
     test_df = one_hot_encoding(filtered_df)
 
-    X_test = test_df.drop("label", axis=1)
-    y_test = test_df["label"]
+    X_test = test_df.drop("Label", axis=1)
+    y_test = test_df["Label"]
 
     # Load the model
     model = download_model_from_storage(uid, problem_name, model_type)
@@ -148,8 +136,16 @@ def evaluate_model(
     predictions = model.predict(X_test)
     accuracy = accuracy_score(y_test, predictions)
 
-    # Return evaluation metrics
-    return {"accuracy": accuracy}
+    # Compute confusion matrix
+    cm = confusion_matrix(y_test, predictions)
+    # Flatten the confusion matrix if it's for binary classification
+    cm_flattened = cm.flatten() if cm.size == 4 else cm
+
+    # Return evaluation metrics including the confusion matrix
+    return {
+        "accuracy": np.round(accuracy, 3),
+        "confusion_matrix": cm_flattened.tolist(),  # Convert numpy array to list for JSON serialization
+    }
 
 
 def translateLayerToCode(layer_name):
@@ -230,12 +226,12 @@ def generate_ml_experiment_feedback(
             system_message_1,
             user_message_template_1,
         )
-    elif not all(feature in features for feature in ["texture", "hardness"]):
+    elif not all(feature in features for feature in ["Texture", "Hardness"]):
         system_message, user_message_template = (
             system_message_2,
             user_message_template_2,
         )
-    elif model_type != "decision_tree":
+    elif model_type != "Decision Tree":
         system_message, user_message_template = (
             system_message_3,
             user_message_template_3,

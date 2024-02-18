@@ -13,17 +13,13 @@ from endpoint_utils import (
     gen_data,
     train_and_upload_model,
     evaluate_model,
-    user_model_to_model_name,
     generate_ml_experiment_feedback,
-    setup_predictionguard_token,
 )
 
 
 app = Flask(__name__)
 CORS(app)
-# intialize firestore
-# os.environ["FIRESTORE_EMULATOR_HOST"] = "localhost:8080"
-# print(os.getcwd())
+
 cred = credentials.Certificate("./firebase-admin.json")
 
 firebase_admin.initialize_app(
@@ -35,7 +31,6 @@ firebase_admin.initialize_app(
         # "auth": {"emulatorHost": "localhost:9099"},
     },
 )
-# firebase_admin.delete_app(db)
 
 db = firestore.client()
 
@@ -66,29 +61,29 @@ def gen_user_data():
     return jsonify({"status": "success"})
 
 
-# Invoke-WebRequest -Uri http://localhost:5000/train -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}'
-# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}' http://localhost:5000/train
+# Invoke-WebRequest -Uri http://localhost:5000/train -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["Hardness", "Density", "Conductivity", "Shininess", "Shape", "Texture"]}'
+# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["Hardness", "Density", "Conductivity", "Shininess", "Shape", "Texture"]}' http://localhost:5000/train
 @app.route("/train", methods=["POST"])
 def train_model():
     data = request.get_json()
     print(data)
     uid = data["uid"]
     problem_name = data["problem_name"]
-    model_name = user_model_to_model_name(data["model_name"])
+    model_name = data["model_name"]
     features = data["features"]
 
     train_and_upload_model(db, uid, problem_name, model_name, features)
     return jsonify({"status": "success"})
 
 
-# Invoke-WebRequest -Uri http://localhost:5000/evaluate -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}'
-# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["hardness", "density", "conductivity", "shininess", "shape", "texture"]}' http://localhost:5000/evaluate
+# Invoke-WebRequest -Uri http://localhost:5000/evaluate -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["Hardness", "Density", "Conductivity", "Shininess", "Shape", "Texture"]}'
+# curl -X POST -H "Content-Type: application/json" -d '{"uid": "user_10", "problem_name": "FoolsGold", "model_name": "Decision Tree", "features": ["Hardness", "Density", "Conductivity", "Shininess", "Shape", "Texture"]}' http://localhost:5000/evaluate
 @app.route("/evaluate", methods=["POST"])
 def evaluate_user_model():
     data = request.get_json()
     uid = data["uid"]
     problem_name = data["problem_name"]
-    model_name = user_model_to_model_name(data["model_name"])
+    model_name = data["model_name"]
     features = data["features"]
 
     evaluation_results = evaluate_model(db, uid, problem_name, model_name, features)
@@ -98,7 +93,7 @@ def evaluate_user_model():
     data = get_data(db, uid, problem_name, True)
     print("training data length", len(data))
     feedback = generate_ml_experiment_feedback(
-        len(data), features, model_name, evaluation_results
+        len(data), features, model_name, evaluation_results["accuracy"]
     )
     print(feedback)
     return jsonify(
