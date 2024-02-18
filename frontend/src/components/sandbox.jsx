@@ -1,4 +1,4 @@
-import { Card, NumberInput, NumberInputField, NumberInputStepper, NumberDecrementStepper, NumberIncrementStepper, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator, FormControl, FormLabel, Select } from '@chakra-ui/react'
+import { Card, NumberInput, NumberInputField, FormHelperText, NumberInputStepper, NumberDecrementStepper, NumberIncrementStepper, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator, FormControl, FormLabel, Select } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { CSS } from '@dnd-kit/utilities';
@@ -94,9 +94,49 @@ function LayerBank({availableLayers}) {
       />
       <TabPanels>
       <TabPanel>
+        <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+          {/* Dataset Selection */}
+          <GridItem>
+            <FormControl mt="4">
+              <FormLabel htmlFor="datasetSelect">Select Dataset:</FormLabel>
+              <Select id="datasetSelect" placeholder="Select dataset">
+                <option value="mnist">MNIST - Handwritten digits</option>
+                <option value="cifar10">CIFAR-10 - Object Recognition in Images</option>
+                <option value="fashionMNIST">Fashion MNIST - Zalando's Article Images</option>
+                <option value="imagenet">ImageNet - Large Scale Visual Recognition</option>
+                {/* Add more datasets as needed */}
+              </Select>
+            </FormControl>
+          </GridItem>
           
-          </TabPanel>
-        <TabPanel>
+          {/* Intentionally left blank for future use or aesthetic spacing */}
+          <GridItem>
+            {/* Placeholder or empty for layout purposes */}
+          </GridItem>
+
+          {/* Train-Test Split Configuration */}
+          <GridItem>
+            <FormControl mt="4">
+              <FormLabel htmlFor="trainTestSplit">Train-Test Split:</FormLabel>
+              <NumberInput id="trainTestSplit" defaultValue={80} min={1} max={99} clampValueOnBlur={false}>
+                <NumberInputField />
+              </NumberInput>
+              <FormHelperText>Percentage of data used for training. Remaining for testing.</FormHelperText>
+            </FormControl>
+          </GridItem>
+
+          {/* Batch Size Configuration */}
+          <GridItem>
+            <FormControl mt="4">
+              <FormLabel htmlFor="batchSizeInput">Batch Size:</FormLabel>
+              <NumberInput id="batchSizeInput" defaultValue={16} min={1} max={1024} clampValueOnBlur={false}>
+                <NumberInputField />
+              </NumberInput>
+            </FormControl>
+          </GridItem>
+        </Grid>
+      </TabPanel>
+      <TabPanel>
         <Grid h='200px' templateColumns='repeat(4, 1fr)' gap={4}>
             {availableLayers.map((layer) => {
               return (
@@ -108,17 +148,52 @@ function LayerBank({availableLayers}) {
           </Grid>
         </TabPanel>
         <TabPanel>
-        <Menu>
-  <MenuButton as={Button}>
-    Loss Function
-  </MenuButton>
-  <MenuList>
-    <MenuItem>Log Loss</MenuItem>
-    <MenuItem>Cross-Entropy Loss</MenuItem>
-    <MenuItem>Mean Squared Error</MenuItem>
-    <MenuItem>Mean Absolute Error</MenuItem>
-  </MenuList>
-</Menu>
+          <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+            {/* Loss Function Selection */}
+            <GridItem>
+              <FormControl>
+                <FormLabel htmlFor="lossFunctionSelect">Select Loss Function:</FormLabel>
+                <Select id="lossFunctionSelect" placeholder="Select loss function">
+                  <option value="binaryCrossEntropy">Binary Cross-Entropy (Log Loss)</option>
+                  <option value="crossEntropy">Cross-Entropy Loss</option>
+                  <option value="meanSquaredError">Mean Squared Error (MSE)</option>
+                  <option value="meanAbsoluteError">Mean Absolute Error (MAE)</option>
+                </Select>
+              </FormControl>
+            </GridItem>
+            {/* Optimizer Selection */}
+            <GridItem>
+              <FormControl>
+                <FormLabel htmlFor="optimizerSelect">Select Optimizer:</FormLabel>
+                <Select id="optimizerSelect" placeholder="Select optimizer">
+                  <option value="sgd">SGD (Stochastic Gradient Descent)</option>
+                  <option value="adam">Adam</option>
+                  <option value="rmsprop">RMSprop</option>
+                  <option value="adagrad">Adagrad</option>
+                </Select>
+              </FormControl>
+            </GridItem>
+
+            {/* Epoch Number Configuration */}
+            <GridItem>
+              <FormControl>
+                <FormLabel htmlFor="epochInput">Number of Epochs:</FormLabel>
+                <NumberInput id="epochInput" defaultValue={1} min={1} max={1000} clampValueOnBlur={false}>
+                  <NumberInputField />
+                </NumberInput>
+              </FormControl>
+            </GridItem>
+
+            {/* Learning Rate Configuration */}
+            <GridItem>
+              <FormControl>
+                <FormLabel htmlFor="learningRateInput">Learning Rate:</FormLabel>
+                <NumberInput id="learningRateInput" defaultValue={0.001} min={0} max={1} precision={4} step={0.0001} clampValueOnBlur={false}>
+                  <NumberInputField />
+                </NumberInput>
+              </FormControl>
+            </GridItem>
+          </Grid>
         </TabPanel>
         <TabPanel>
 
