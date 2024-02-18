@@ -10,6 +10,7 @@ import './firebase/init'
 import '@fontsource/lilita-one';
 import {Card} from './components/dnd/DndElements'
 import { Level } from './components/level';
+import sandbox from './components/sandbox';
 // import Card from
 
 function App() {
@@ -25,9 +26,11 @@ function App() {
     <Stack direction='row' spacing={4} className="p-4 justify-between border-b border-blue-800">
     <Heading><Link to="/" className="font-lilitaOne">ScratchML</Link></Heading>
     <ButtonGroup spacing={4}>
-    <Button colorScheme='white'className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
-        <Text className="text-blue-800 font-lilitaOne">Sandbox</Text>
+      <Link to="/sandbox">
+    <Button colorScheme='white' className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
+        <Text to="/sandbox" className="text-blue-800 font-lilitaOne">Sandbox</Text>
       </Button>
+      </Link>
       <Button colorScheme='white'className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
         <Text className="text-blue-800 font-lilitaOne">Account</Text>
       </Button>
@@ -39,6 +42,7 @@ function App() {
       <Routes>
         <Route exact path="/" Component={LandingPage}/>
         <Route path="/lessonOne" Component={Level}/>
+        <Route path="/sandbox" Component={sandbox}/>
       </Routes>
     </ChakraProvider>
     </Router>
