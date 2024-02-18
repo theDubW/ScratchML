@@ -24,7 +24,21 @@ export function generateData(uid, problemName, n){
   // console.log("DONE WITH CALLING ENDPOINT");
 }
 
-export function trainSandboxModel(curLayers, params){
+export function trainSandboxModel(uid, curLayers, params){
+  //     uid = data["uid"]
+    // problem_name = data["problem_name"]
+    // model_name = data["model_name"]
+    // layer_list = data["layer_list"]
+    // learning_rate = data["learning_rate"]
+    // epochs = data["epochs"]
+    // optimizer_name = data["optimizer_name"]
+    // criterion_name = data["criterion_name"]
+    // dataset = data["dataset"]
+    // # Invoke-RestMethod -Uri 'http://localhost:5000/train_sandbox' -Method Post -ContentType "application/json" 
+    // -Body '{"uid":"user123","problem_name":"MNIST_Classification","model_name":"Custom_CNN",
+    // "layer_list":[["conv",6],["conv",16],["linear",120],["linear",84]],"learning_rate":0.0001,
+    // "epochs":5,"optimizer_name":"Adam","criterion_name":"Cross Entropy","dataset":"MNIST"}'
+
   // console.log("CALLING ENDPOINT");
   // assert(curLayers.length === params.length);
   const layers = [];
@@ -35,7 +49,15 @@ export function trainSandboxModel(curLayers, params){
   }
   console.log("layers: ", layers);
   const data = {
-    "layers": layers
+    "uid": uid,
+    "problem_name": "sandbox",
+    "model_name": params[0], // model name is the first parameter b/c of input being first layer
+    "layer_list": layers,
+    "learning_rate": 0.0001,
+    "epochs": 10,
+    "optimizer_name": "Adam",
+    "criterion_name": "Cross Entropy",
+    "dataset": "MNIST"
   }
   fetch('http://localhost:5000/train_sandbox', {
     method: 'POST',

@@ -6,6 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { evalModel, generateData, trainModel, trainSandboxModel } from '../helpers/callEndpoint';
 import { FeedbackBar } from './level';
 import { drop } from 'lodash';
+import Sand from '../sand.png';
 
 
 const inputLabel = {
@@ -173,7 +174,7 @@ function trainSandbox(curLayers, params){
   // get rid of undefined layers
   const layers = curLayers.filter(layer => layer !== undefined);
 
-  trainSandboxModel(layers, params);
+  trainSandboxModel("user_10", layers, params);
 }
 
 
@@ -236,6 +237,7 @@ export default function Sandbox() {
       console.log("Params: ", params);
     }, [params]);
     return (
+      <>
         <DndContext onDragEnd={handleDragEnd} className="h-screen items-stretch">
           <div className='flex justify-between items-center'>
             <div className='flex justify-center items-center w-full'>
@@ -256,7 +258,11 @@ export default function Sandbox() {
             </div>
           </Box>   
         {/* </div> */}
+        
         </DndContext>
+        <img className="fixed bottom-0 left-0 w-full h-auto transform translate-y-1/2 -translate-y-1/2" src={Sand} alt="sand"/>
+        </>
+        
     )
 };
 

@@ -13,10 +13,19 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
-from typing import List
+from typing import List, Tuple, Any
 import os
-import json
 import predictionguard as pg
+import torch
+import torch.utils
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+
+# import intel_extension_for_pytorch as ipex
+from torchvision import datasets, transforms
+from torch.utils.data import DataLoader, Subset
 
 
 def gen_data(
@@ -261,3 +270,233 @@ def generate_ml_experiment_feedback(
     feedback_content = result["choices"][0]["message"]["content"]
 
     return feedback_content
+
+
+class Net(nn.Module):
+    def __init__(self, layerList: List[Tuple[str, int]]):
+        super(Net, self).__init__()
+        convList = []
+        idx = 0
+        print("LAYER LIST IN NET: ", layerList)
+        while layerList[idx][0] == "Convolutional":
+            # self.conv1 = nn.Conv2d(in_channels = in_channels, out_channels = out_channels,
+            #                    kernel_size = kernel_size, stride = stride, padding = padding)
+            dim = layerList[idx][1]
+            if idx == 0:
+                convList.append(
+                    nn.Conv2d(
+                        in_channels=1,
+                        out_channels=dim,
+                        kernel_size=5,
+                        stride=1,
+                        padding=2,
+                    )
+                )
+                idx += 1
+                continue
+            prev_dim = layerList[idx - 1][1]
+            convList.append(
+                nn.Conv2d(
+                    in_channels=prev_dim,
+                    out_channels=dim,
+                    kernel_size=5,
+                    stride=1,
+                    padding=2,
+                )
+            )
+            idx += 1
+        first_linear_dim = 28 * 28 * dim
+        first_idx = idx
+        linearList = []
+        while layerList[idx][0] == "Linear":
+            dim = layerList[idx][1]
+            if first_idx == idx:
+                linearList.append(
+                    nn.Linear(in_features=first_linear_dim, out_features=dim)
+                )
+                idx += 1
+                continue
+            prev_dim = layerList[idx - 1][1]
+            linearList.append(nn.Linear(in_features=prev_dim, out_features=dim))
+            idx += 1
+            if idx >= len(layerList):
+                break
+        self.convs = nn.ModuleList([layer for layer in convList])
+        self.linears = nn.ModuleList([layer for layer in linearList])
+        self.output = nn.Linear(in_features=dim, out_features=10)
+
+    def forward(self, x):
+        output = None
+        for idx, layer in enumerate(self.convs):
+            if idx == 0:
+                output = F.relu(layer(x))
+                continue
+            output = F.relu(layer(output))
+        output = output.view(output.size(0), -1)
+        for layer in self.linears:
+            output = F.relu(layer(output))
+        output = self.output(output)
+        return output
+
+
+def load_mnist_data(
+    batch_size: int, mean: float, std: float
+) -> Tuple[DataLoader, DataLoader]:
+    transforms_train = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.RandomCrop(size=(28, 28), padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.Normalize(mean=[mean], std=[std]),
+        ]
+    )
+
+    transforms_test = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize(mean=[mean], std=[std])]
+    )
+
+    mnist_trainset = datasets.MNIST(
+        root="./data", train=True, download=True, transform=transforms_train
+    )
+
+    # Balance the dataset
+    def create_balanced_subset(dataset, num_samples_per_class=160):
+        targets = np.array(dataset.targets)
+        indices_per_class = [np.where(targets == i)[0] for i in range(10)]
+        balanced_indices = np.hstack(
+            [indices[:num_samples_per_class] for indices in indices_per_class]
+        )
+        np.random.shuffle(balanced_indices)
+        return Subset(dataset, balanced_indices)
+
+    balanced_trainset = create_balanced_subset(
+        mnist_trainset, 160
+    )  # 160 samples per class, 1600 in total
+
+    mnist_testset = datasets.MNIST(
+        root="./data", train=False, download=True, transform=transforms_test
+    )
+    balanced_testset = create_balanced_subset(
+        mnist_testset, 40
+    )  # 40 samples per class, 400 in total for validation
+
+    train_loader = DataLoader(
+        balanced_trainset, batch_size=batch_size, shuffle=True, num_workers=0
+    )
+    test_loader = DataLoader(
+        balanced_testset, batch_size=batch_size, shuffle=False, num_workers=0
+    )
+
+    return train_loader, test_loader
+
+
+def train_and_upload_sandbox_model(
+    uid: str,
+    problem_name: str,
+    model_name: str,
+    layer_list: List[Tuple[str, int]],
+    learning_rate: float,
+    epochs: int,
+    optimizer_name: str,
+    criterion_name: str,
+    train_loader: DataLoader,
+) -> None:
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = Net(layer_list).to(device)  # Assuming Net is a defined network architecture
+
+    # Map optimizer name to PyTorch optimizers
+    optimizers = {
+        "SGD": optim.SGD(model.parameters(), lr=learning_rate),
+        "Adam": optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4),
+        "RMSprop": optim.RMSprop(model.parameters(), lr=learning_rate),
+        "Adagrad": optim.Adagrad(model.parameters(), lr=learning_rate),
+    }
+    optimizer = optimizers.get(optimizer_name.replace(" ", ""), None)
+    if optimizer is None:
+        raise ValueError(f"Unsupported optimizer: {optimizer_name}")
+
+    # Map criterion name to PyTorch loss functions
+    criteria = {
+        "Log Loss": nn.BCELoss(),
+        "Cross Entropy": nn.CrossEntropyLoss(),
+        "MSE": nn.MSELoss(),
+        "MAE": nn.L1Loss(),
+    }
+    criterion = criteria.get(criterion_name)
+    if criterion is None:
+        raise ValueError(f"Unsupported criterion: {criterion_name}")
+
+    for epoch in range(epochs):
+        print(f"Epoch {epoch + 1}")
+        model.train()
+        train_loss = 0
+        train_correct = 0
+        total_samples = 0
+
+        for batch_idx, (inputs, targets) in enumerate(train_loader, 0):
+            inputs, targets = inputs.to(device), targets.to(device)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
+            loss.backward()
+            optimizer.step()
+
+            train_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            total_samples += targets.size(0)
+            train_correct += (predicted == targets).sum().item()
+
+        avg_train_loss = train_loss / len(train_loader)
+        train_acc = train_correct / total_samples
+
+        print(f"Train Loss: {avg_train_loss:.4f}, Train Accuracy: {train_acc:.4f}")
+
+    # Add code to upload the model to a database if necessary
+    upload_model_to_storage(uid, problem_name, model_name, model)
+
+
+def evaluate_sandbox_model(
+    uid: str,
+    problem_name: str,
+    model_name: str,
+    test_loader: DataLoader,
+    criterion_name: str,
+) -> None:
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    # Load the model
+    model = download_model_from_storage(uid, problem_name, model_name)
+
+    model.eval()
+    test_loss = 0
+    test_correct = 0
+    total_samples = 0
+
+    # Map criterion name to PyTorch loss functions
+    criteria = {
+        "Log Loss": nn.BCELoss(),
+        "Cross Entropy": nn.CrossEntropyLoss(),
+        "MSE": nn.MSELoss(),
+        "MAE": nn.L1Loss(),
+    }
+    criterion = criteria.get(criterion_name)
+    if criterion is None:
+        raise ValueError(f"Unsupported criterion: {criterion_name}")
+
+    with torch.no_grad():
+        for inputs, targets in test_loader:
+            inputs, targets = inputs.to(device), targets.to(device)
+            outputs = model(inputs)
+            loss = criterion(outputs, targets)
+
+            test_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            total_samples += targets.size(0)
+            test_correct += (predicted == targets).sum().item()
+
+    avg_test_loss = test_loss / len(test_loader)
+    test_acc = test_correct / total_samples
+    print(f"Test Loss: {avg_test_loss:.4f}, Test Accuracy: {test_acc:.4f}")
+
+    return {"accuracy": np.round(test_acc, 4), "loss": np.round(avg_test_loss, 4)}
