@@ -112,7 +112,7 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
 
         </TableContainer>
         {activeFeatures.length > 0 ? <>
-        <Button colorScheme="white" onClick={() => generateData(uid, "FoolsGold", 10, activeFeatures)} className="border-blue-800 border-2 rounded hover:bg-gray-300 font-signika"> 
+        <Button colorScheme="white" onClick={() => generateData(uid, "FoolsGold", 50, activeFeatures)} className="border-blue-800 border-2 rounded hover:bg-gray-300 font-signika"> 
         <Text className="text-blue-800">Generate Data</Text></Button>
         </> : <></>}
       </CardBody>
@@ -365,8 +365,7 @@ export function Level() {
     }
     // change features available
     if (event.over && event.over.id === 'data-droppable' && features.includes(event.active.id) && !activeFeatures.includes(event.active.id)) {
-      const idToLower = event.active.id.toLocaleLowerCase()
-      setActiveFeatureId(idToLower);
+      setActiveFeatureId(event.active.id);
     }
   }
   useEffect(() => {
@@ -388,7 +387,7 @@ export function Level() {
       // setActiveFeatureId(activeFeatureId);
       setActiveFeatures([...activeFeatures, activeFeatureId]);
       // console.log("available features", availableFeatures, ", ", activeFeatureId);
-      setAvailableFeatures(availableFeatures.filter((feature) => feature.toLowerCase() !== activeFeatureId));
+      setAvailableFeatures(availableFeatures.filter((feature) => feature !== activeFeatureId));
     }
   }, [activeFeatureId]);
   return (
@@ -396,7 +395,7 @@ export function Level() {
     <DndContext onDragEnd={handleDragEnd}>
       <div className="flex w-full relative" id="TopBar">
         <ProblemDrawer />
-        <h1 className='text-4xl text-center w-full pb-10'>Fool's Gold</h1>
+        <h1 className='text-4xl text-center w-full pb-10 font-lilitaOne'>Fool's Gold</h1>
       </div>
       <div className='w-full h-2/3 inline-flex'>
         <Box display="flex" alignItems="center" className='m-0 w-full'>

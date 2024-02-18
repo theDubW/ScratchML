@@ -8,7 +8,7 @@ import Wave from '../wave.png';
 
 const map = () => {
     return (
-        <div className='border-2 border-black rounded h-screen m-2 bg-sky-500  relative w-screen'>
+        <div className='border-2 border-black rounded h-dvh m-2 bg-sky-500  relative w-screen'>
             <TaskList className=""/>
             <img src={Wave} alt="wave" className="absolute size-20 left-20 top-20" />
             <img src={Wave} alt="wave" className="absolute size-20 left-22 top-22" />

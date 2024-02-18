@@ -6,6 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { evalModel, generateData, trainModel } from '../helpers/callEndpoint';
 import { FeedbackBar } from './level';
 import { drop } from 'lodash';
+import Sand from '../sand.png';
 
 // A place to drop layers
 function Droppable({index, layerType, dimension}){
@@ -188,6 +189,7 @@ export default function Sandbox() {
       console.log("Current layers: ", curLayers);
     }, [curLayers]);
     return (
+        <>
         <DndContext onDragEnd={handleDragEnd} className="h-screen items-stretch">
           <h1 className='text-4xl text-center pb-10 font-lilitaOne'>Sandbox</h1>
           {/* <div className='w-full h-full flex flex-col'> */}
@@ -204,6 +206,8 @@ export default function Sandbox() {
           </Box>   
         {/* </div> */}
         </DndContext>
+        <img src={Sand} alt="sand"/>
+        </>
     )
 };
 
