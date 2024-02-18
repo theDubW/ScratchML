@@ -1,5 +1,7 @@
 // import fetch from 'node-fetch';
 
+// import { assert } from "console";
+
 export function generateData(uid, problemName, n){
   // console.log("CALLING ENDPOINT");
   const data = {
@@ -22,10 +24,18 @@ export function generateData(uid, problemName, n){
   // console.log("DONE WITH CALLING ENDPOINT");
 }
 
-export function trainSandboxModel(curLayers){
+export function trainSandboxModel(curLayers, params){
   // console.log("CALLING ENDPOINT");
+  // assert(curLayers.length === params.length);
+  const layers = [];
+  console.log("curLayers: ", curLayers, "params: ", params);
+  for(let i = 0; i<curLayers.length; i++) {
+    console.log(curLayers[i][0], params[i])
+    layers.push([curLayers[i][0], params[i]]);
+  }
+  console.log("layers: ", layers);
   const data = {
-    "layers": curLayers
+    "layers": layers
   }
   fetch('http://localhost:5000/train_sandbox', {
     method: 'POST',
