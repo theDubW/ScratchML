@@ -60,12 +60,12 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
     const newAvailableFeatures = [...availableFeatures, feature];
     setAvailableFeatures(newAvailableFeatures);
   }
-
+  const numSamples = Object.keys(data).length === 0 ? 0 : data[Object.keys(data)[0]].length;
   return (
     <Card id="data" className="w-1/3 ml-3" ref={setNodeRef} style={style}>
       <CardHeader className='text-center font-bold'>Data</CardHeader>
       <CardBody className='text-center flex flex-col justify-end items-center'>
-        <Text className='text-bold'>Gold v. Fool's Gold Properties</Text>
+        <Text className='text-bold'>Gold v. Fool's Gold Properties ({numSamples} samples)</Text>
         <TableContainer className='mt-0 mb-3'>
           <Table variant='simple' size="sm">
             <Tbody>
@@ -134,12 +134,17 @@ function Model({ activeModelId, setActiveModelId, availableModels, setAvailableM
   );
 }
 
-function TrainRun({ model_name, features }) {
+function TrainRun({ model_name, features, setFeedback }) {
   const [evalResult, setEvalResult] = useState(null);
   const evalModelPerf = async () => {
     const res = await evalModel(uid, "FoolsGold", model_name, features);
     console.log(res);
     setEvalResult(res.result);
+    setFeedback(res.feedback);
+  }
+  const evalAndFeedBack = () => {
+    evalModelPerf();
+    setFeedback("...");
   }
   return (
     <Card id="trainrun" className="w-1/3 h-full relative mr-3">
@@ -155,14 +160,14 @@ function TrainRun({ model_name, features }) {
           {/* <Text className='font-bold'>Train</Text> */}
 
           <Button className="mr-3" onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
-          <Button onClick={() => evalModelPerf()}>Run Model</Button>
+          <Button onClick={() => evalAndFeedBack()}>Run Model</Button>
         </div>
       </CardBody>
     </Card >
   );
 }
 
-function FeedbackBar() {
+function FeedbackBar({feedback}) {
   return (
     <Card className="w-1/3 ml-3 mt-3">
       <CardHeader>
@@ -170,7 +175,7 @@ function FeedbackBar() {
       </CardHeader>
       <CardBody>
         <div className="w-full h-1000">
-
+          <Text className='overflow-auto'>{feedback}</Text>
         </div>
       </CardBody>
     </Card>
@@ -189,7 +194,7 @@ function ProblemDrawer() {
           </button>
         </Tooltip>
       </div>
-      <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} onClose={onClose} size={'md'}>
+      <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} size={'md'}>
         <DrawerOverlay />
         <DrawerContent>
           <DrawerHeader borderBottomWidth='1px'>Lesson One: Sample Size</DrawerHeader>
@@ -314,6 +319,7 @@ export function Level() {
   const [activeFeatureId, setActiveFeatureId] = useState(null);
   const [activeFeatures, setActiveFeatures] = useState([]);
   const [availableFeatures, setAvailableFeatures] = useState([...features]);
+  const [feedback, setFeedback] = useState("");
   function handleDragEnd(event) {
     if (event.over && event.over.id === 'model-droppable' && modelOptions.includes(event.active.id)) {
       console.log("model dropped", event.active.id);
@@ -348,7 +354,8 @@ export function Level() {
       // console.log(activeFeatureId);
       // setActiveFeatureId(activeFeatureId);
       setActiveFeatures([...activeFeatures, activeFeatureId]);
-      setAvailableFeatures(availableFeatures.filter((feature) => feature !== activeFeatureId));
+      console.log("available features", availableFeatures, ", ", activeFeatureId);
+      setAvailableFeatures(availableFeatures.filter((feature) => feature.toLowerCase() !== activeFeatureId));
     }
   }, [activeFeatureId]);
   return (
@@ -361,12 +368,12 @@ export function Level() {
         <Box display="flex" alignItems="center" className='m-0 w-full'>
           <Data activeFeatures={activeFeatures} setActiveFeatures={setActiveFeatures} availableFeatures={availableFeatures} setAvailableFeatures={setAvailableFeatures}/>
           <Model activeModelId={activeModelId} setModel={setModel} setActiveModelId={setActiveModelId} availableModels={availableModels} setAvailableModels={setAvailableModels}/>
-          <TrainRun model_name={model} features={activeFeatures}/>
+          <TrainRun model_name={model} features={activeFeatures} setFeedback={setFeedback}/>
         </Box>
       </div>
       <div className='w-full h-1/3 inline-flex'>
         <Box display="flex" alignItems="center" className='m-0 w-full h-full inline-block'>
-          <FeedbackBar />
+          <FeedbackBar feedback={feedback}/>
           <DnDBar availableFeatures={availableFeatures} availableModels={availableModels}/>
           {/* <Text>Select Features</Text>
         {features.map((feature) => {

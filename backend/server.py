@@ -3,6 +3,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from flask_cors import CORS
 import os
+from database_utils import get_data
 
 # Assuming evaluate_model function is defined in endpoint_utils or a similar module
 from endpoint_utils import (
@@ -11,7 +12,7 @@ from endpoint_utils import (
     evaluate_model,
     user_model_to_model_name,
     generate_ml_experiment_feedback,
-    setup_predictionguard_token
+    setup_predictionguard_token,
 )
 
 
@@ -79,9 +80,15 @@ def evaluate_user_model():
     print(evaluation_results)
 
     # Generate feedback using the evaluation results
-    feedback = generate_ml_experiment_feedback(len(data) * 5, features, model_name, evaluation_results)
+    data = get_data(db, uid, problem_name, True)
+    print("training data length", len(data))
+    feedback = generate_ml_experiment_feedback(
+        len(data), features, model_name, evaluation_results
+    )
     print(feedback)
-    return jsonify({"status": "success", "result": evaluation_results, "feedback": feedback})
+    return jsonify(
+        {"status": "success", "result": evaluation_results, "feedback": feedback}
+    )
 
 
 # bucket = storage.bucket()
