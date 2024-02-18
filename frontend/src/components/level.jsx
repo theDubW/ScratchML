@@ -1,4 +1,4 @@
-import { Card, HStack, useDisclosure, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, Container, Tooltip, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Card, HStack, useDisclosure, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, Container, Tooltip, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator } from '@chakra-ui/react'
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
@@ -62,10 +62,12 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
   }
   const numSamples = Object.keys(data).length === 0 ? 0 : data[Object.keys(data)[0]].length;
   return (
-    <Card id="data" className="w-1/3 ml-3" ref={setNodeRef} style={style}>
-      <CardHeader className='text-center font-bold'>Data</CardHeader>
-      <CardBody className='text-center flex flex-col justify-end items-center'>
-        <Text className='text-bold'>Gold v. Fool's Gold Properties ({numSamples} samples)</Text>
+    <div className="w-1/3 h-full ml-3 mr-1 border-2 border-slate-300 rounded-lg">
+    <Card id="data" className="rounded-lg h-full" ref={setNodeRef} style={style}>
+      <CardHeader className='text-center font-lilitaOne'>Data</CardHeader>
+      <CardBody className='text-center flex flex-col justify-end items-center pb-0'>
+        {/* <Text className='text-bold'>Gold v. Fool's Gold Properties ({numSamples} samples)</Text> */}
+        {activeFeatures.length === 0 ? <div className="bg-gray-300 rounded-lg border-dashed border-black border-2 w-full h-full font-signika">Drag some features here!</div> : <></>}
         <TableContainer className='mt-0 mb-3'>
           <Table variant='simple' size="sm">
             <Tbody>
@@ -79,7 +81,13 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
                     return (
                       <Tr key={key}>
                         {/* TODO add emojis */}
-                        <Td className="sticky left-0 bg-white flex flex-row items-center"><Button size="xs" variant="outline" className='mr-1' onClick={()=>removeFeature(key)}>X</Button><Text fontWeight="bold">{key}</Text> </Td>
+                        
+                        <Td className="sticky left-0 bg-white font-signika">
+                          <div className="flex flex-row items-center">
+                          <Button size="xs" variant="outline" className='left-0 mr-1' onClick={()=>removeFeature(key)}>X</Button>
+                          <Text fontWeight="bold">{key}</Text>
+                          </div>
+                        </Td>
                         {
                           values.map((value, index) => {
                             // const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -102,9 +110,13 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
           </Table>
 
         </TableContainer>
-        <Button onClick={() => generateData(uid, "FoolsGold", 10, activeFeatures)}>Generate Data</Button>
+        {activeFeatures.length > 0 ? <>
+        <Button colorScheme="white" onClick={() => generateData(uid, "FoolsGold", 10, activeFeatures)} className="border-blue-800 border-2 rounded hover:bg-gray-300 font-signika"> 
+        <Text className="text-blue-800">Generate Data</Text></Button>
+        </> : <></>}
       </CardBody>
     </Card>
+    </div>
   );
 }
 
@@ -123,14 +135,16 @@ function Model({ activeModelId, setActiveModelId, availableModels, setAvailableM
   };
 
   return (
-    <Card className="w-1/3 h-full m-4" ref={setNodeRef} style={style}>
-      <CardHeader className='text-center font-bold'>Model</CardHeader>
-      <CardBody className='text-center flex items-center justify-center'>
+    <div className="w-1/3 h-full m-1 border-2 border-slate-300 rounded-lg">
+    <Card className="h-full rounded-lg" ref={setNodeRef} style={style}>
+      <CardHeader className='text-center font-lilitaOne flex items-center justify-center'>Model</CardHeader>
+      <CardBody className='text-center '>
         {activeModelId !== null && (
             <ModelOption type={activeModelId} removeModel={removeModel}/>
         )}
       </CardBody>
     </Card>
+    </div>
   );
 }
 
@@ -146,30 +160,46 @@ function TrainRun({ model_name, features, setFeedback }) {
     evalModelPerf();
     setFeedback("...");
   }
+  const [training, setTraining] = useState(false);
+  
   return (
-    <Card id="trainrun" className="w-1/3 h-full relative mr-3">
-      <CardHeader className='text-center font-bold'>Train / Run</CardHeader>
-      <CardBody className='text-center flex items-center h-full'>
-        <div className="absolute h-3/4 top-0">
+    <div className="w-1/3 h-full ml-1 border-2 border-slate-300 rounded-lg ">
+    <Card id="trainrun" className="h-full rounded-lg pb-4">
+      <CardHeader className='text-center font-lilitaOne'>Train / Run</CardHeader>
+      <CardBody className='text-center flex items-center h-full flex-col'>
+        <div className=" h-3/4 top-0">
           <div id="visualization"></div>
 
         </div>
         {evalResult !== null ? <Text className='mb-3 font-bold text-center justify-center'>Accuracy: {Math.round(evalResult.accuracy * 100)}%</Text> : <></>}
 
-        <div className="absolute h-1/4 bottom-0">
+        <div className="h-1/4 align-middle flex flex-row justify-center">
           {/* <Text className='font-bold'>Train</Text> */}
-
-          <Button className="mr-3" onClick={() => trainModel(uid, "FoolsGold", model_name, features)}>Train Model</Button>
-          <Button onClick={() => evalAndFeedBack()}>Run Model</Button>
+          
+          <Button colorScheme="white" className="mr-3 hover:bg-gray-300 border-blue-800 border-2" onClick={() => 
+          async function train() {
+            setTraining(true);
+            trainModel(uid, "FoolsGold", model_name, features);
+            await new Promise( res => setTimeout(res, 1000));
+            setTraining(false);
+          }
+            }>
+              {training ? <>Loading...</> : 
+            <Text className="text-blue-800 font-signika">Train Model</Text>}</Button>
+          <Button colorScheme="white" onClick={() => evalModelPerf()} className="hover:bg-gray-300 border-blue-800 border-2">
+          <Text className="text-blue-800 font-signika">Run Model</Text>
+          </Button>
         </div>
       </CardBody>
     </Card >
+    </div>
   );
 }
 
 function FeedbackBar({feedback}) {
   return (
-    <Card className="w-1/3 ml-3 mt-3">
+    <div className="w-full ml-3 mr-0 mt-2 border-slate-300 border-2 rounded-lg">
+    <Card className="">
       <CardHeader>
         <Heading size='md text-center'>Feedback</Heading>
       </CardHeader>
@@ -179,6 +209,7 @@ function FeedbackBar({feedback}) {
         </div>
       </CardBody>
     </Card>
+    </div>
   );
 }
 
@@ -211,14 +242,16 @@ function ProblemDrawer() {
 
 function DnDBar({availableModels, availableFeatures}) {
   return (
-    <Card className="w-2/3 m-4 mr-3 mt-3">
-      <Tabs className="w-full">
-        < TabList >
-          <Tab>Features</Tab>
-          <Tab>Model</Tab>
-          <Tab>Training</Tab>
-          <Tab>Run</Tab>
-        </TabList >
+    <Tabs isFitted variant='unstyled' className="w-full border-2 border-slate-300 mt-2 ml-3 rounded-lg">
+      < TabList >
+        <Tab className="text-blue-800 hover:bg-gray-300">Features</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300">Model</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300" isDisabled>Training</Tab>
+        <Tab className="text-blue-800 hover:bg-gray-300" isDisabled>Run</Tab>
+      </TabList >
+      <TabIndicator
+        className="border-b-2 border-blue-800 text-blue-800"
+      />
 
       <TabPanels>
         <TabPanel>
@@ -251,8 +284,7 @@ function DnDBar({availableModels, availableFeatures}) {
           <p>three!</p>
         </TabPanel>
       </TabPanels>
-    </Tabs >
-    </Card>);
+    </Tabs >);
 }
 
 function ModelOption({ type, removeModel}) {
@@ -265,17 +297,17 @@ function ModelOption({ type, removeModel}) {
 
 
   return (
-    <>
-    {removeModel !== undefined ? <Button size="xs" className="mr-2 ml-0" onClick={removeModel}>X</Button> : <></>}
+    <div className="flex flex-row items-center">
+    {removeModel !== undefined && <Button size="xs" className="mr-2 ml-0" onClick={removeModel}>X</Button>}
     <Card className='m-3' ref={setNodeRef} style={style} {...listeners} {...attributes}>
-      <CardHeader className='flex flex-row'>
-        <Text className='font-bold'>{type}</Text>
+      <CardHeader>
+        <Text className='font-bold text-blue-800'>{type}</Text>
       </CardHeader>
       {/* <CardBody>
         <Text>Model</Text>
       </CardBody> */}
     </Card>
-    </>
+    </div>
   );
 }
 
@@ -288,9 +320,9 @@ function FeatureOption({ type }) {
   } : undefined;
 
   return (
-    <Card className='m-3' ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <Card className='m-3 border-blue-800' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <CardHeader>
-        <Text className='font-bold'>{type}</Text>
+        <Text className='font-bold text-blue-800'>{type}</Text>
       </CardHeader>
       {/* <CardBody>
         <Text></Text>
@@ -354,7 +386,7 @@ export function Level() {
       // console.log(activeFeatureId);
       // setActiveFeatureId(activeFeatureId);
       setActiveFeatures([...activeFeatures, activeFeatureId]);
-      console.log("available features", availableFeatures, ", ", activeFeatureId);
+      // console.log("available features", availableFeatures, ", ", activeFeatureId);
       setAvailableFeatures(availableFeatures.filter((feature) => feature.toLowerCase() !== activeFeatureId));
     }
   }, [activeFeatureId]);
@@ -371,10 +403,12 @@ export function Level() {
           <TrainRun model_name={model} features={activeFeatures} setFeedback={setFeedback}/>
         </Box>
       </div>
-      <div className='w-full h-1/3 inline-flex'>
-        <Box display="flex" alignItems="center" className='m-0 w-full h-full inline-block'>
-          <FeedbackBar feedback={feedback}/>
-          <DnDBar availableFeatures={availableFeatures} availableModels={availableModels}/>
+      <div className='w-full h-800 inline-flex'>
+        <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full inline-block'>
+          <FeedbackBar />
+        </Box>
+        <Box display="flex" alignItems="center" className='m-0 w-2/3 h-full inline-block'>
+          <DnDBar availableModels={availableModels} availableFeatures={availableFeatures}/>
           {/* <Text>Select Features</Text>
         {features.map((feature) => {
           return <FeatureOption key={feature} type={feature} />
