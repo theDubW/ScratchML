@@ -152,11 +152,22 @@ def evaluate_model(
     return {"accuracy": accuracy}
 
 
+def translateLayerToCode(layer_name):
+    if layer_name == "Convolutional":
+        return "conv"
+    elif layer_name == "Linear":
+        return "linear"
+    else:
+        return ValueError("Bad layer type")
+
+
 def setup_predictionguard_token(token: str) -> None:
     os.environ["PREDICTIONGUARD_TOKEN"] = token
 
 
-def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str, accuracy: float) -> str:
+def generate_ml_experiment_feedback(
+    n: int, features: List[str], model_type: str, accuracy: float
+) -> str:
     system_message_1 = {
         "role": "system",
         "content": """
@@ -164,11 +175,11 @@ def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str
 
         Feedback template:
         "Nice job on starting your experiment! If your accuracy isn't quite where you want it to be, consider how more data might help your model learn better. What happens if you increase your dataset?"
-        """
+        """,
     }
     user_message_template_1 = {
         "role": "user",
-        "content": "I used a dataset size of {n}, and got accuracy {accuracy}."
+        "content": "I used a dataset size of {n}, and got accuracy {accuracy}.",
     }
 
     system_message_2 = {
@@ -178,11 +189,11 @@ def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str
 
         Feedback template:
         "Great effort! It looks like you're exploring different features. If you're not seeing the results you hoped for, think about other features you haven't tried yet. There's always room to experiment and find what works best."
-        """
+        """,
     }
     user_message_template_2 = {
         "role": "user",
-        "content": "I used {features} as features for my model and got accuracy {accuracy}."
+        "content": "I used {features} as features for my model and got accuracy {accuracy}.",
     }
 
     system_message_3 = {
@@ -192,11 +203,11 @@ def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str
 
         Feedback template:
         "You're making good progress! If the model you chose isn't providing the results you hoped for, consider testing out other models. Each model type has its strengths, and switching it up could reveal what works best for your dataset."
-        """
+        """,
     }
     user_message_template_3 = {
         "role": "user",
-        "content": "I trained a {model_type} model and achieved an accuracy of {accuracy}."
+        "content": "I trained a {model_type} model and achieved an accuracy of {accuracy}.",
     }
 
     system_message_4 = {
@@ -206,37 +217,51 @@ def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str
 
         Feedback template:
         "Congratulations on achieving such great results! Your experiment shows you're learning the ropes of machine learning. Feel free to experiment more or consider moving on to the next lesson to continue expanding your skills."
-        """
+        """,
     }
     user_message_template_4 = {
         "role": "user",
-        "content": "My model achieved an accuracy of {accuracy}."
+        "content": "My model achieved an accuracy of {accuracy}.",
     }
 
     # Select the appropriate messages based on input parameters
     if n < 250:
-        system_message, user_message_template = system_message_1, user_message_template_1
+        system_message, user_message_template = (
+            system_message_1,
+            user_message_template_1,
+        )
     elif not all(feature in features for feature in ["texture", "hardness"]):
-        system_message, user_message_template = system_message_2, user_message_template_2
+        system_message, user_message_template = (
+            system_message_2,
+            user_message_template_2,
+        )
     elif model_type != "decision_tree":
-        system_message, user_message_template = system_message_3, user_message_template_3
+        system_message, user_message_template = (
+            system_message_3,
+            user_message_template_3,
+        )
     else:
-        system_message, user_message_template = system_message_4, user_message_template_4
+        system_message, user_message_template = (
+            system_message_4,
+            user_message_template_4,
+        )
 
     # Format the user message with the experiment details
-    user_message = {"role": "user", "content": user_message_template['content'].format(n=n, features=features, model_type=model_type, accuracy=accuracy)}
+    user_message = {
+        "role": "user",
+        "content": user_message_template["content"].format(
+            n=n, features=features, model_type=model_type, accuracy=accuracy
+        ),
+    }
 
     # Combine the system message and the user message for the session
     messages = [system_message, user_message]
 
     # Create a chat session with Prediction Guard, using the defined messages
     setup_predictionguard_token("q1VuOjnffJ3NO2oFN8Q9m8vghYc84ld13jaqdF7E")
-    result = pg.Chat.create(
-        model="Neural-Chat-7B",
-        messages=messages
-    )
+    result = pg.Chat.create(model="Neural-Chat-7B", messages=messages)
 
     # Extract the content from the result
-    feedback_content = result['choices'][0]['message']['content']
+    feedback_content = result["choices"][0]["message"]["content"]
 
     return feedback_content

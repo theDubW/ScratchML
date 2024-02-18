@@ -4,6 +4,9 @@ from firebase_admin import credentials, firestore
 from flask_cors import CORS
 import os
 from database_utils import get_data
+import json
+from paramiko import SSHClient
+from fabric import Connection
 
 # Assuming evaluate_model function is defined in endpoint_utils or a similar module
 from endpoint_utils import (
@@ -35,6 +38,18 @@ firebase_admin.initialize_app(
 # firebase_admin.delete_app(db)
 
 db = firestore.client()
+
+client = SSHClient()
+client.load_system_host_keys("/Users/maxweinreb/.ssh/known_hosts")
+print("connecting")
+c = Connection("100.82.12.111", user="ubuntu")
+c.open()
+print("connected")
+# check if connected
+
+# print("connected")
+result = c.run("echo YAH")
+print(result.stdout)
 
 
 # Invoke-WebRequest -Uri http://localhost:5000/gen_data -Method Post -ContentType "application/json" -Body '{"uid": "user_10", "problem_name": "FoolsGold", "n": 10}'
@@ -89,6 +104,31 @@ def evaluate_user_model():
     return jsonify(
         {"status": "success", "result": evaluation_results, "feedback": feedback}
     )
+
+
+@app.route("/train_sandbox", methods=["POST"])
+def train_sandbox():
+    # input data should be list of tuples (layer_type, dimensions)
+    data = request.get_json()
+    # print(data)
+    layers_tuples = data["layers"]
+    print(layers_tuples)
+    # convert to enumerated json
+    layers_json = {}
+    i = 0
+    for layer in enumerate(layers_tuples):
+        if layer[1][0] == "Input" or layer[1][0] == "Output":
+            continue
+        layers_json[i] = layer[1]
+        i += 1
+    print(json.dumps(layers_json))
+    # uid = data["uid"]
+    # problem_name = data["problem_name"]
+    # model_name = user_model_to_model_name(data["model_name"])
+    # features = data["features"]
+
+    # train_and_upload_model(db, uid, problem_name, model_name, features)
+    return jsonify({"status": "success"})
 
 
 # bucket = storage.bucket()

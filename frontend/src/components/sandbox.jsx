@@ -3,7 +3,7 @@ import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import { useEffect, useState } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
 import { CSS } from '@dnd-kit/utilities';
-import { evalModel, generateData, trainModel } from '../helpers/callEndpoint';
+import { evalModel, generateData, trainModel, trainSandboxModel } from '../helpers/callEndpoint';
 import { FeedbackBar } from './level';
 import { drop } from 'lodash';
 
@@ -134,6 +134,12 @@ function LayerOption({ type }) {
 
 }
 // convolution: kernels, linear: nodes
+function trainSandbox(curLayers){
+  // get rid of undefined layers
+  const layers = curLayers.filter(layer => layer !== undefined);
+  trainSandboxModel(layers);
+}
+
 
 const layers = ["Input", "Convolutional", "Linear", "Output"]
 
@@ -187,9 +193,16 @@ export default function Sandbox() {
     useEffect(() => {
       console.log("Current layers: ", curLayers);
     }, [curLayers]);
+    
+
     return (
         <DndContext onDragEnd={handleDragEnd} className="h-screen items-stretch">
-          <h1 className='text-4xl text-center pb-10 font-lilitaOne'>Sandbox</h1>
+          <div className='flex justify-between items-center'>
+            <div className='flex justify-center items-center w-full'>
+              <h1 className='text-4xl text-center pb-10 font-lilitaOne'>Sandbox</h1>
+            </div>
+            <Button className='m-3' onClick={() => trainSandbox(curLayers)}>Train</Button>
+          </div>
           {/* <div className='w-full h-full flex flex-col'> */}
             {/* <Box display="flex" alignItems="center" className='m-0 w-1/3 h-full inline-block'>
               <FeedbackBar />

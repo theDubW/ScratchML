@@ -22,6 +22,27 @@ export function generateData(uid, problemName, n){
   // console.log("DONE WITH CALLING ENDPOINT");
 }
 
+export function trainSandboxModel(curLayers){
+  // console.log("CALLING ENDPOINT");
+  const data = {
+    "layers": curLayers
+  }
+  fetch('http://localhost:5000/train_sandbox', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+  // console.log("DONE WITH CALLING ENDPOINT");
+
+}
+
 export function trainModel(uid, problem_name, modelName, features){
   // console.log("CALLING ENDPOINT");
   const data = {
