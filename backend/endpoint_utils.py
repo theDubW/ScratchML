@@ -204,7 +204,7 @@ def generate_ml_experiment_feedback(n: int, features: List[str], model_type: str
     # Select the appropriate messages based on input parameters
     if n < 250:
         system_message, user_message_template = system_message_1, user_message_template_1
-    elif not all(feature in features for feature in ["texture", "hardness"]):
+    elif not all(feature in features for feature in ["Texture", "Hardness"]):
         system_message, user_message_template = system_message_2, user_message_template_2
     elif model_type != "Decision Tree":
         system_message, user_message_template = system_message_3, user_message_template_3
