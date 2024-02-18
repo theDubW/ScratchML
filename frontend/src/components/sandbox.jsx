@@ -80,8 +80,6 @@ function LayerOption({ type }) {
     id: type,
   });
   const [dimensions, setDimensions] = new useState(6);
-  const format = (val) => `$` + val;
-  const parse = (val) => val.replace(/^\$/, '');
   const style = transform ? {
     transform: CSS.Translate.toString(transform),
   } : undefined;
@@ -104,10 +102,10 @@ function LayerOption({ type }) {
             <NumberInput max={500} min={1} onChange={(valueString) => 
             {
                 console.log("ON CHANGE\n");
-            setDimensions(parse(valueString));
+            setDimensions(valueString);
             }
         }
-      value={format(dimensions)} className='m-2'>
+      value={dimensions} className='m-2'>
           <NumberInputField />
         </NumberInput>
         </FormControl>
