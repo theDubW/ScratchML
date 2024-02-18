@@ -112,7 +112,7 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
 
         </TableContainer>
         {activeFeatures.length > 0 ? <>
-        <Button colorScheme="white" onClick={() => generateData(uid, "FoolsGold", 10, activeFeatures)} className="border-blue-800 border-2 rounded hover:bg-gray-300 font-signika"> 
+        <Button colorScheme="white" onClick={() => generateData(uid, "FoolsGold", 50, activeFeatures)} className="border-blue-800 border-2 rounded hover:bg-gray-300 font-signika"> 
         <Text className="text-blue-800">Generate Data</Text></Button>
         </> : <></>}
       </CardBody>
@@ -224,14 +224,33 @@ function ProblemDrawer() {
           </button>
         </Tooltip>
       </div>
-      <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} size={'md'}>
+      <Drawer placement={'left'} onClose={onClose} isOpen={isOpen} size={'lg'}>
         <DrawerOverlay />
         <DrawerContent>
-          <DrawerHeader borderBottomWidth='1px'>Lesson One: Sample Size</DrawerHeader>
+          <DrawerHeader className='1px font-signika'>Lesson One: Sample Size</DrawerHeader>
           <DrawerBody>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
-            <p>Some contents...</p>
+            <p className="font-signika">Hey, young explorers! Ready to embark on a thrilling quest to distinguish real gold from Fool's Gold? Welcome to our adventure, "Fool's Gold," where you'll become a treasure hunter using the power of machine learning, without writing a single line of code!
+            </p>
+<p className="font-signika">
+In this mission, you have a map with clues based on six magical elements: Hardness, Density, Conductivity, Shininess, Shape, and Texture. Each element has its own secret that can help you find the real gold. But beware, not all that glitters is gold, and not all clues are as helpful as they seem!
+</p><p className="font-signika">
+Your journey will take you through the lands of data, where you'll learn to choose your tools wisely. You'll gather your own data based on the six elements. Remember, some clues might lead you to Fool's Gold, so you need to decide which elements are truly golden!
+</p><li className="font-signika">
+  <text className="font-lilitaOne">Hardness and Density: </text>
+These might tell you how tough and heavy the gold is.
+</li><li className="font-signika">
+<text className="font-lilitaOne">Conductivity: </text> Real gold is a great conductor. Can you use this to your advantage?
+</li><li className="font-signika">
+<text className="font-lilitaOne">Shininess: </text> Gold has a special shine, but can you tell it apart from the misleading glimmer of Fool's Gold?
+</li><li className="font-signika">
+<text className="font-lilitaOne">Shape: </text> Gold can come in many shapes - circles, triangles, rectangles, and squares. Which shapes are more common for real gold?
+</li><li className="font-signika">
+<text className="font-lilitaOne">Texture: </text>Is the gold smooth or rough? This could be a crucial clue!
+</li>
+<p className="font-signika">
+As you experiment with training and evaluating your treasure-finding models, you'll learn which elements are the most reliable indicators of real gold. The goal? To achieve a 90% accuracy in identifying the true treasure. Along the way, you'll also get a sneak peek at different magic spells (models) you can cast on your data to improve your chances.
+</p><p className="font-signika">
+This adventure is not just about finding treasure; it's about using your brain, making smart choices, and learning the secrets of machine learning. Are you ready to use your knowledge from the previous lessons and unlock the mystery of real gold? Grab your explorer's hat, and let's dive into the world of "Fool's Gold"!</p>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
@@ -365,8 +384,7 @@ export function Level() {
     }
     // change features available
     if (event.over && event.over.id === 'data-droppable' && features.includes(event.active.id) && !activeFeatures.includes(event.active.id)) {
-      const idToLower = event.active.id.toLocaleLowerCase()
-      setActiveFeatureId(idToLower);
+      setActiveFeatureId(event.active.id);
     }
   }
   useEffect(() => {
@@ -388,7 +406,7 @@ export function Level() {
       // setActiveFeatureId(activeFeatureId);
       setActiveFeatures([...activeFeatures, activeFeatureId]);
       // console.log("available features", availableFeatures, ", ", activeFeatureId);
-      setAvailableFeatures(availableFeatures.filter((feature) => feature.toLowerCase() !== activeFeatureId));
+      setAvailableFeatures(availableFeatures.filter((feature) => feature !== activeFeatureId));
     }
   }, [activeFeatureId]);
   return (
@@ -396,7 +414,7 @@ export function Level() {
     <DndContext onDragEnd={handleDragEnd}>
       <div className="flex w-full relative" id="TopBar">
         <ProblemDrawer />
-        <h1 className='text-4xl text-center w-full pb-10'>Fool's Gold</h1>
+        <h1 className='text-4xl text-center w-full font-lilitaOne'>Fool's Gold - The Quest for Real Gold</h1>
       </div>
       <div className='w-full h-2/3 inline-flex'>
         <Box display="flex" alignItems="center" className='m-0 w-full'>
