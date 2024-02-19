@@ -4,11 +4,15 @@ TL:DR; It’s hard and important to learn machine learning and data science; we�
 
 We’re students ranging in various levels of machine learning experience, but we all started the same way; working through infamous online courses and filling out starter code with lines we don’t understand. Although we eventually were able to mature our understanding of machine learning, through ScratchML, we are changing the ML education paradigm from our shared experiences and struggles to creating a platform where kids can develop intuition on data analysis and machine learning that abstracts away the parts that make it difficult. Instead of “learning” by filling out lines of pytorch code that aren’t self evident, we want kids to start thinking about the richness of data around us, what it can be used for, and how to leverage models to infer things about the world around us. We are from the generation that was inspired by Scratch, where drag-and-drop code helped us to make toy games and develop our intuition to code even before we learned our first programming language. ScratchML aims to take a similar approach, creating a learning platform that's easy-to-use and develops our way of thinking and intuition behind the scenes.
 
+![img1](https://github.com/theDubW/ScratchML/assets/83472902/cbceb8ba-87a9-41e9-bf50-6cd104ca06e3)
+
 ## What it does
 
 Our platform is designed to teach machine learning and data analysis principles. The challenge is two-fold: making the learning fun and engaging while also providing a high quality curriculum developed around experiential learning. ScratchML delivers on both aspects by providing a reliable drag-and-drop interface used just like Scratch for model development and data experimentation, and through engineered datasets where the student are guided through exploring the data and reporting findings, students will be much more engaged through trying out a bunch of different approaches to accomplish a mission.
 
 Each lesson comes with a workspace, where students can drag-and-drop models and other blocks to create a no-code, data analysis pipeline. A personalized tutor system is designed to guide the learning process, offering explanations and tips to guide the learning process. This system leverages the Prediction Guard LLM API to provide real-time insights into user decisions and outcomes within lessons. It employs state management to ensure continuous progress while fostering a sandbox-style learning environment.
+
+![img2](https://github.com/theDubW/ScratchML/assets/83472902/2be22066-e1b2-4b49-825c-82f6fe1f13f6)
 
 ## How we built it
 
@@ -25,6 +29,8 @@ Dev tools: Intel's Developer Cloud for constructing and testing the sandbox mode
 
 The largest challenge was to constantly rework the design to build a more intuitive, highly-functional interface. We are software developers by training; it was difficult to settle on a UI/UX design that achieves all of our priorities. Prior approaches for no-code machine learning are primarily designed for use in industry. Although they work well for older users who need to model data, at each stage we were super focused on whether or not each of the design elements were good for students. Furthermore, with this being our first or second hackathon experience, we worked hard to coordinate distributing work, ideating what could be feasibly accomplished in 36 hours, and ensuring that we accomplish our tasks in a timely manner. A final challenge we faced was simple endurance - the last few hours of development were extremely difficult given the sleep deprivation we all suffered from - overcoming this challenge was simply a matter of willpower and perseverance.
 
+![img3](https://github.com/theDubW/ScratchML/assets/83472902/d2e6df7d-9ceb-43fd-b8cd-1c5ef6a9af52)
+
 ## Accomplishments that we're proud of
 
 As amateur hackers, we are proud of what we accomplished this weekend - from building a helpful and innovative product from scratch to just the sheer amount of hard work we exhibited - this weekend proved to us that we are each capable of much more than we originally thought. Our team has limited hackathon experience, and we went in with the approach of not compromising on even our most ambitious ideas. We hacked together the base form of ScratchML, which supports all of the critical features that we set out to do at the beginning of the hackathon, and we are super excited to continue to work at the idea and think creatively and collaboratively on ways we can improve the learning experience for students in the future.
@@ -40,3 +46,7 @@ Finally, this challenge asked all of us to wear a wide variety of hats, working 
 
 We plan on making the UI more intuitive, adding more lessons, increasing the number of blocks available in the sandbox, and increasing the number of datasets users can play with.
 It is also imperative that we continue to think of creative ways to encourage learning. Our vision for the future of education, shared with many leaders in the space, is turning the classroom into a laboratory, where students can experiment and grow through trial-and-error. This requires coordinated collaboration and a lot of learning on our end as well, and we are eager to innovate and learn from innovators in the educational space to grow ScratchML into the go-to platform for young students trying to learn machine learning and data science principles.
+
+![image1](https://github.com/theDubW/ScratchML/assets/83472902/142c76c5-55ea-4004-817e-ea7afe7eb83e)
+
+
