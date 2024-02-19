@@ -4,7 +4,7 @@ TL:DR; It’s hard and important to learn machine learning and data science; we�
 
 We’re students ranging in various levels of machine learning experience, but we all started the same way; working through infamous online courses and filling out starter code with lines we don’t understand. Although we eventually were able to mature our understanding of machine learning, through ScratchML, we are changing the ML education paradigm from our shared experiences and struggles to creating a platform where kids can develop intuition on data analysis and machine learning that abstracts away the parts that make it difficult. Instead of “learning” by filling out lines of pytorch code that aren’t self evident, we want kids to start thinking about the richness of data around us, what it can be used for, and how to leverage models to infer things about the world around us. We are from the generation that was inspired by Scratch, where drag-and-drop code helped us to make toy games and develop our intuition to code even before we learned our first programming language. ScratchML aims to take a similar approach, creating a learning platform that's easy-to-use and develops our way of thinking and intuition behind the scenes.
 
-![img1](https://github.com/theDubW/ScratchML/assets/83472902/cbceb8ba-87a9-41e9-bf50-6cd104ca06e3)
+![img1](https://github.com/theDubW/ScratchML/assets/83472902/6449927c-d2b7-49ce-9a38-335deb6973f8)
 
 ## What it does
 
