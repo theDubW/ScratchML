@@ -2,7 +2,6 @@ import './App.css';
 import { ChakraProvider, } from '@chakra-ui/react'
 import { BrowserRouter as Router, Route, Routes, Link} from 'react-router-dom';
 import LandingPage from './views/landing_page';
-import lessonOne from './views/lesson_one';
 import { Button, Stack, ButtonGroup} from '@chakra-ui/react'
 import { Heading } from '@chakra-ui/react'
 import { extendTheme, Text } from '@chakra-ui/react'
