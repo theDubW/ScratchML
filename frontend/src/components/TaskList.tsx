@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import {
     Accordion,
     AccordionItem,
@@ -19,7 +19,13 @@ import {
 import { IoMdMenu } from "react-icons/io";
 import {Link} from 'react-router-dom';
 
-const Task = ({title, description, completion}) => {
+interface TaskProps {
+    title: string;
+    description: string;
+    completion: number;
+}
+
+const Task: FC<TaskProps> = ({title, description, completion}) => {
     return (
     <AccordionItem className="mb-2 border-blue-800 border-2 border-b-4 rounded font-lilitaOne">
                 <h2>
@@ -74,33 +80,34 @@ const TaskList = () => {
                     description={"Discover how to assess the performance of machine learning models using metrics like accuracy, precision, recall, and the confusion matrix."}/>
         
                     <Task title={"Lesson Six: Overfitting and Underfitting:"}
+                    completion={0}
                     description={"Learn about the challenges of overfitting and underfitting, including strategies to balance model complexity and training data size for optimal performance."}/>
 
-                    <Task title={"Lesson Seven: Cross-validation"}
+                    <Task title={"Lesson Seven: Cross-validation"} completion={0}
                     description={"Explore cross-validation techniques to ensure a model's performance is reliable and will generalize well to unseen data."}/>
 
-                    <Task title={"Lesson Eight: Hyperparameter Tuning"}
+                    <Task title={"Lesson Eight: Hyperparameter Tuning"} completion={0}
                     description={"Understand how to optimize model parameters to improve performance and the use of techniques like grid search and random search."}/>
 
-                    <Task title={"Lesson Nine: Ensemble Methods"}  
+                    <Task title={"Lesson Nine: Ensemble Methods"}   completion={0}
                     description={"Learn about combining multiple models to improve predictions, including methods like bagging, boosting, and stacking."}/>
 
-                    <Task title={"Lesson Ten: Introduction to Deep Learning"}
+                    <Task title={"Lesson Ten: Introduction to Deep Learning"} completion={0}
                     description={"Get a basic understanding of deep learning and neural networks, including the architecture of a simple neural network."}/>
 
-                    <Task title={"Lesson Eleven: Convolutional Neural Networks (CNNs)"}
+                    <Task title={"Lesson Eleven: Convolutional Neural Networks (CNNs)"} completion={0}
                     description={"Explore the basics of CNNs and their use in image recognition and processing tasks."}/>
 
-                    <Task title={"Lesson Twelve: Recurrent Neural Networks (RNNs)"}
+                    <Task title={"Lesson Twelve: Recurrent Neural Networks (RNNs)"} completion={0}
                     description={"Learn about RNNs and their applications in sequence analysis, such as natural language processing and time series forecasting."}/>
 
-                    <Task title={"Lesson Thirteen: Unsupervised Learning"}
+                    <Task title={"Lesson Thirteen: Unsupervised Learning"} completion={0}
                     description={"Understand unsupervised learning techniques, including clustering and dimensionality reduction, and their use cases."}/>
 
-                    <Task title={"Lesson Fourteen: Reinforcement Learning"}   
+                    <Task title={"Lesson Fourteen: Reinforcement Learning"}    completion={0}
                     description={"Get introduced to the fundamentals of reinforcement learning, where models learn to make decisions through trial and error."}/>
 
-                    <Task title={"Lesson FIfteen: Ethics in AI"}
+                    <Task title={"Lesson FIfteen: Ethics in AI"} completion={0}
                     description={"Discuss the ethical considerations in AI and machine learning, including bias, fairness, and the impact of AI technologies on society."}/>   
         </Accordion>
                 </DrawerBody>
