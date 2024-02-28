@@ -97,7 +97,7 @@ export function trainModel(uid, problem_name, modelName, features){
   // console.log("DONE WITH CALLING ENDPOINT");
 }
 
-export async function evalModel(uid, problem_name, modelName, features){
+export async function evalModel(uid, problem_name, modelName, features) {
   const data = {
     "uid": uid,
     "problem_name": problem_name,
