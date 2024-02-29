@@ -1,6 +1,6 @@
 import { Card, NumberInput, NumberInputField, NumberInputStepper, NumberDecrementStepper, NumberIncrementStepper, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator, FormControl, FormLabel, Select } from '@chakra-ui/react'
-import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
-import { useEffect, useState } from 'react';
+import { DndContext, useDroppable, useDraggable, DragEndEvent, UniqueIdentifier } from '@dnd-kit/core';
+import { useEffect, useState, FC, SyntheticEvent } from 'react';
 import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
 import { CSS } from '@dnd-kit/utilities';
 import { evalModel, evalSandboxModel, generateData, trainModel, trainSandboxModel } from '../helpers/callEndpoint';
@@ -9,15 +9,26 @@ import { drop } from 'lodash';
 import Sand from '../sand.png';
 
 
-const inputLabel = {
+const inputLabel: { [key: string]: string | undefined } = {
   "Convolutional": "Kernels",
   "Linear": "Nodes",
   "Input": undefined,
   "Output": undefined
 };
 
+function isString(value: any): value is string {
+  return typeof value === 'string';
+}
+
 // A place to drop layers
-function Droppable({index, layerType, params, setParams}){
+interface DroppableProps{
+  index: number;
+  layerType: string | undefined;
+  params: any;
+  setParams: any;
+};
+
+const Droppable: FC<DroppableProps> = ({index, layerType, params, setParams}) => {
   const { isOver, setNodeRef } = useDroppable({
     id: 'droppable-'+index,
   });
@@ -25,7 +36,7 @@ function Droppable({index, layerType, params, setParams}){
     color: isOver ? 'green' : undefined,
   };
   
-  const [inputVal, setInputVal] = useState();
+  const [inputVal, setInputVal] = useState<string | number>();
   useEffect(() => {
     if (layerType) {
       const newParams = [...params];
@@ -62,7 +73,7 @@ function Droppable({index, layerType, params, setParams}){
           }
           {
             layerType[0] === "Input" && (
-              <Select placeholder="Select Data" onChange={(e) => {setInputVal(e.target.value)}} >
+              <Select placeholder="Select Data" onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {setInputVal(e.target.value)}} >
                 <option value="mnist">MNIST - Handwritten digits</option>
                 <option value="cifar10">CIFAR-10 - Object Recognition in Images</option>
                 <option value="fashionMNIST">Fashion MNIST - Zalando's Article Images</option>
@@ -80,13 +91,19 @@ function Droppable({index, layerType, params, setParams}){
   );
 }
 
+interface DroppableRowProps {
+  numDroppables: number;
+  curLayers: (string | undefined)[];
+  params: any;
+  setParams: any;
+};  
 
-function DroppableRow({ numDroppables, curLayers, params, setParams }) {
+const DroppableRow: FC<DroppableRowProps> = ({ numDroppables, curLayers, params, setParams }) => {
   const template = `repeat(${numDroppables}, 1fr)`;
   
   return (
     <Grid templateColumns={template} gap={4} style={{ minHeight: '33vh' }}>
-      {Array(numDroppables).fill().map((_, index) => {
+      {Array(numDroppables).fill(undefined).map((_, index) => {
         const layerType = curLayers[index] ? curLayers[index] : undefined;
         // const dimension = curLayers[index] ? curLayers[index][1] : undefined;
         return (
@@ -101,7 +118,12 @@ function DroppableRow({ numDroppables, curLayers, params, setParams }) {
 // conv layer (conv) number output dim
 // linear layer (linear) number output dim
 
-function LayerBank({availableLayers, outputVal}) {
+interface LayerBankProps {
+  availableLayers: string[];
+  outputVal: any;
+};
+
+const LayerBank: FC<LayerBankProps> = ({availableLayers, outputVal}) => {
     return (
       <Tabs isFitted variant='unstyled' className="w-full border-2 border-slate-300 mt-2 ml-3 rounded-lg">
       < TabList >
@@ -115,7 +137,7 @@ function LayerBank({availableLayers, outputVal}) {
       <TabPanels>
         <TabPanel>
           <Grid h='200px' templateColumns='repeat(4, 1fr)' gap={4}>
-            {availableLayers.map((layer) => {
+            {availableLayers.map((layer: string) => {
               return (
                 <GridItem key={layer} rowSpan={1} colSpan={1}>
                    <LayerOption key={layer} type={layer} />
@@ -148,8 +170,12 @@ function LayerBank({availableLayers, outputVal}) {
         // </Grid>
       );
 }
-  
-function LayerOption({ type }) {
+
+interface LayerOptionProps {
+  type: string;
+};  
+
+const LayerOption: FC<LayerOptionProps> = ({ type }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: type,
   });
@@ -178,17 +204,18 @@ function LayerOption({ type }) {
   );
 
 }
+
 // convolution: kernels, linear: nodes
-function trainSandbox(curLayers, params){
+function trainSandbox(curLayers: (string | undefined)[], params: (number | undefined)[]){
   // get rid of undefined layers
   const layers = curLayers.filter(layer => layer !== undefined);
 
   trainSandboxModel("user_10", layers, params);
 }
 
-function evalSandbox(curLayers, setOutputVal) {
+function evalSandbox(curLayers: (string | undefined)[], setOutputVal: (value: number | ((prevVar: number) => number)) => void) {
   const layers = curLayers.filter(layer => layer !== undefined);
-  evalSandboxModel("user_10", "sandbox", "mnist", "Cross Entropy").then((data) => {
+  evalSandboxModel("user_10", "sandbox", "mnist", "Cross Entropy").then((data: any) => {
     const res = data["result"];
     console.log("Result: ", res);
     console.log("Accuracy: ", res["accuracy"]);
@@ -197,9 +224,7 @@ function evalSandbox(curLayers, setOutputVal) {
   });
 }
 
-
 const layers = ["Input", "Convolutional", "Linear", "Output"];
-
 
 export default function Sandbox() {
     // const [isDroppedLayer, setIsDroppedLayer] = useState(false);
@@ -210,10 +235,11 @@ export default function Sandbox() {
     //array of tuples of [(layerType, dimension)]
     const [curLayers, setCurLayers] = useState(Array(numDroppables).fill(undefined));
     const [selectedLayer, setSelectedLayer] = useState(null);
-    const [params, setParams] = useState(Array(numDroppables).fill(undefined));
-    const [outputVal, setOutputVal] = useState(16);
-    function handleDragEnd(event) {
+    const [params, setParams] = useState<(number | undefined)[]>(Array(numDroppables).fill(undefined));
+    const [outputVal, setOutputVal] = useState<number>(16);
+    function handleDragEnd(event: DragEndEvent) {
       const droppedId = event.active.id;
+      if (!isString(droppedId)) return;
       const layerType = droppedId.split("-")[0];
       console.log("Layer type: ", layerType);
       if (event.over && layers.includes(layerType)) {
@@ -221,6 +247,7 @@ export default function Sandbox() {
         // setActiveLayerId(event.active.id);
         // setIsDroppedLayer(true);
         // determine index of dropped layer
+        if (!isString(event.over.id)) return;
         const droppedIndex = parseInt(event.over.id.split("-")[1]);
         console.log("Dropped index: ", droppedIndex);
         // add layer to current layers
@@ -259,7 +286,7 @@ export default function Sandbox() {
     }, [params]);
     return (
       <>
-        <DndContext onDragEnd={handleDragEnd} className="h-screen items-stretch">
+        <DndContext onDragEnd={handleDragEnd}>
           <div className='flex justify-between items-center'>
             <div className='flex justify-center items-center w-full'>
               <h1 className='text-4xl text-center pb-10 font-lilitaOne'>Sandbox</h1>
