@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {DndContext} from '@dnd-kit/core';
+import {DndContext, DragEndEvent} from '@dnd-kit/core';
 
 import {Droppable} from './Droppable';
 import {Draggable} from './Draggable';
@@ -25,7 +25,7 @@ export function Card(){
       </Droppable>
     </DndContext>
   );
-  function handleDragEnd(event) {
+  function handleDragEnd(event: DragEndEvent) {
     if (event.over && event.over.id === 'droppable') {
       setIsDropped(true);
     }
