@@ -180,7 +180,7 @@ const TrainRun: FC<TrainRunProps> = ({ model_name, features, setFeedback }) => {
   const [evalResult, setEvalResult] = useState<EvalResult | null>(null);
   // const [confusion, setConfusion] = useState([]);
   const evalModelPerf = async () => {
-    const res = await evalModel(uid, "FoolsGold", model_name, features) as EvalModelResponse;
+    const res = await evalModel(uid, "FoolsGold", model_name as string, features as (string | undefined)[]) as EvalModelResponse;
     setEvalResult(res.result);
     setFeedback(res.feedback);
   }
@@ -227,7 +227,7 @@ const TrainRun: FC<TrainRunProps> = ({ model_name, features, setFeedback }) => {
           
           <Button colorScheme="white" className="mr-3 hover:bg-gray-300 border-blue-800 border-2" onClick={async () => {
             setTraining(true);
-            trainModel(uid, "FoolsGold", model_name, features);
+            trainModel(uid, "FoolsGold", model_name as string, features as (string | undefined)[]);
             await new Promise( res => setTimeout(res, 1000));
             setTraining(false);
           }}>

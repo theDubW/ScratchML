@@ -206,9 +206,9 @@ const LayerOption: FC<LayerOptionProps> = ({ type }) => {
 }
 
 // convolution: kernels, linear: nodes
-function trainSandbox(curLayers: (string | undefined)[], params: (number | undefined)[]){
+function trainSandbox(curLayers: (string | undefined)[], params: number[]){
   // get rid of undefined layers
-  const layers = curLayers.filter(layer => layer !== undefined);
+  const layers = curLayers.filter((layer): layer is string => layer !== undefined);
 
   trainSandboxModel("user_10", layers, params);
 }
@@ -235,7 +235,7 @@ export default function Sandbox() {
     //array of tuples of [(layerType, dimension)]
     const [curLayers, setCurLayers] = useState(Array(numDroppables).fill(undefined));
     const [selectedLayer, setSelectedLayer] = useState(null);
-    const [params, setParams] = useState<(number | undefined)[]>(Array(numDroppables).fill(undefined));
+    const [params, setParams] = useState<number[]>(Array(numDroppables).fill(undefined));
     const [outputVal, setOutputVal] = useState<number>(16);
     function handleDragEnd(event: DragEndEvent) {
       const droppedId = event.active.id;

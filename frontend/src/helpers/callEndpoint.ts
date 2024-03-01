@@ -2,7 +2,7 @@
 
 // import { assert } from "console";
 
-export function generateData(uid, problemName, n){
+export function generateData(uid: string, problemName: string, n: number){
   // console.log("CALLING ENDPOINT");
   const data = {
     "uid": uid,
@@ -24,7 +24,7 @@ export function generateData(uid, problemName, n){
   // console.log("DONE WITH CALLING ENDPOINT");
 }
 
-export function trainSandboxModel(uid, curLayers, params){
+export function trainSandboxModel(uid: string, curLayers: string[], params: number[]){
   //     uid = data["uid"]
     // problem_name = data["problem_name"]
     // model_name = data["model_name"]
@@ -75,7 +75,7 @@ export function trainSandboxModel(uid, curLayers, params){
 
 }
 
-export function trainModel(uid, problem_name, modelName, features){
+export function trainModel(uid: string, problem_name: string, modelName: string, features: (string | undefined)[]){
   // console.log("CALLING ENDPOINT");
   const data = {
     "uid": uid,
@@ -97,7 +97,7 @@ export function trainModel(uid, problem_name, modelName, features){
   // console.log("DONE WITH CALLING ENDPOINT");
 }
 
-export async function evalModel(uid, problem_name, modelName, features) {
+export async function evalModel(uid: string, problem_name: string, modelName: string, features: (string | undefined)[]) {
   const data = {
     "uid": uid,
     "problem_name": problem_name,
@@ -121,7 +121,7 @@ export async function evalModel(uid, problem_name, modelName, features) {
     // model_name = data["model_name"]
     // criterion_name = data["criterion_name"]
 
-export async function evalSandboxModel(uid, problem_name, model_name, criterion_name){
+export async function evalSandboxModel(uid:string, problem_name: string, model_name: string, criterion_name: string){
   const data = {
     "uid": uid,
     "problem_name": problem_name,
