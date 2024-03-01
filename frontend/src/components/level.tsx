@@ -1,7 +1,7 @@
 import { Card, HStack, useDisclosure, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, Container, Tooltip, Table, Thead, Tbody, Tr, Td, Th, Text, Box, CardHeader, CardBody, Grid, GridItem, CardFooter, Flex, Button, Heading, TableContainer, TableCaption, Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator } from '@chakra-ui/react'
-import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
-import { useEffect, useState } from 'react';
-import { getFirestore, onSnapshot, collection, doc } from "firebase/firestore";
+import { DndContext, useDroppable, useDraggable, UniqueIdentifier, DragEndEvent } from '@dnd-kit/core';
+import { useEffect, useState, FC, Key } from 'react';
+import { getFirestore, onSnapshot, collection, doc, UnionToIntersection } from "firebase/firestore";
 import { CSS } from '@dnd-kit/utilities';
 import { evalModel, generateData, trainModel } from '../helpers/callEndpoint';
 import { HiArrowRight, HiArrowLeft } from "react-icons/hi";
@@ -9,17 +9,29 @@ import Sand from '../sand.png';
 
 const uid = "user_10";
 
-function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailableFeatures}) {
+interface DataProps {
+  activeFeatures: UniqueIdentifier[];
+  setActiveFeatures: (value: UniqueIdentifier[] | ((prevVar: UniqueIdentifier[]) => UniqueIdentifier[])) => void;
+  availableFeatures: UniqueIdentifier[];
+  setAvailableFeatures: (value: UniqueIdentifier[] | ((prevVar: UniqueIdentifier[]) => UniqueIdentifier[])) => void;
+};
+
+const Data: FC<DataProps> = ({activeFeatures, setActiveFeatures, availableFeatures, setAvailableFeatures}) => {
   // listen to firestore for data
   const db = getFirestore();
-  const [data, setData] = useState({});
+  const [data, setData] = useState<docData>({});
+  interface docData {
+    [key: string | number]: any;
+  }
 
   useEffect(() => {
     const ref = doc(collection(doc(collection(db, "Users"), uid), "FoolsGold"), "train");
     onSnapshot(ref, (snapshot) => {
       if (snapshot.exists()) {
-        const docData = snapshot.data();
-        const data = {};
+
+        const docData: docData = snapshot.data();
+        const data: docData = {};
+        
         for (const key in docData) {
           data[key] = docData[key];
         }
@@ -34,11 +46,12 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
 
     });
   }, [db]);
-  let num_samples = Object.keys(data);
-  if (num_samples.length === 0) {
+  let num_samples = 0;
+  // let num_samples = Object.keys(data);
+  if (Object.keys(data).length === 0) {
     num_samples = 0;
   } else {
-    num_samples = data[num_samples[0]].length;
+    num_samples = data[Object.keys(data)[0]].length;
   }
   const { isOver, setNodeRef } = useDroppable({
     id: 'data-droppable',
@@ -52,7 +65,7 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
   // if(keys.length === 0){
   //   keys = activeFeatures;
   // }\
-  const removeFeature = (feature) => {
+  const removeFeature = (feature: string) => {
     console.log("removing feature: " + feature);
     console.log(activeFeatures);
     const newActiveFeatures = activeFeatures.filter((f) => f !== feature);
@@ -90,7 +103,7 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
                           </div>
                         </Td>
                         {
-                          values.map((value, index) => {
+                          values.map((value: string, index: number) => {
                             // const { attributes, listeners, setNodeRef, transform } = useDraggable({
                             //   id: index,
                             // });
@@ -112,7 +125,7 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
 
         </TableContainer>
         {activeFeatures.length > 0 ? <>
-        <Button colorScheme="white" onClick={() => generateData(uid, "FoolsGold", 50, activeFeatures)} className="border-blue-800 border-2 rounded hover:bg-gray-300 font-signika"> 
+        <Button colorScheme="white" onClick={() => generateData(uid, "FoolsGold", 50)} className="border-blue-800 border-2 rounded hover:bg-gray-300 font-signika"> 
         <Text className="text-blue-800">Generate Data</Text></Button>
         </> : <></>}
       </CardBody>
@@ -121,7 +134,14 @@ function Data({activeFeatures, setActiveFeatures, availableFeatures, setAvailabl
   );
 }
 
-function Model({ activeModelId, setActiveModelId, availableModels, setAvailableModels }) {
+interface ModelProps {
+  activeModelId: UniqueIdentifier | null;
+  setActiveModelId: (value: UniqueIdentifier | null | ((prevVar: UniqueIdentifier | null) => UniqueIdentifier | null)) => void;
+  availableModels: (UniqueIdentifier | null)[];
+  setAvailableModels: (value: (UniqueIdentifier | null)[] | ((prevVar: (UniqueIdentifier | null)[]) => (UniqueIdentifier | null)[])) => void;
+};
+
+const Model: FC<ModelProps> = ({ activeModelId, setActiveModelId, availableModels, setAvailableModels }) => {
   const { isOver, setNodeRef } = useDroppable({
     id: 'model-droppable',
   });
@@ -141,7 +161,7 @@ function Model({ activeModelId, setActiveModelId, availableModels, setAvailableM
       <CardHeader className='text-center font-lilitaOne flex items-center justify-center'>Model</CardHeader>
       <CardBody className='text-center place-content-center justify-center'>
         {activeModelId !== null ? (
-            <ModelOption type={activeModelId} removeModel={removeModel} className="object-center"/>
+            <ModelOption type={activeModelId} removeModel={removeModel}/>
         ) : <div className="bg-gray-300 rounded-lg border-dashed border-black border-2 w-full h-full font-signika">Drag a model here!</div>}
       </CardBody>
     </Card>
@@ -149,12 +169,18 @@ function Model({ activeModelId, setActiveModelId, availableModels, setAvailableM
   );
 }
 
-function TrainRun({ model_name, features, setFeedback }) {
-  const [evalResult, setEvalResult] = useState(null);
-  const [confusion, setConfusion] = useState([]);
+interface TrainRunProps {
+  model_name: UniqueIdentifier | null;
+  features: (UniqueIdentifier | null)[];
+  setFeedback: (value: string | ((prevVar: string) => string)) => void;
+};
+
+const TrainRun: FC<TrainRunProps> = ({ model_name, features, setFeedback }) => {
+
+  const [evalResult, setEvalResult] = useState<EvalResult | null>(null);
+  // const [confusion, setConfusion] = useState([]);
   const evalModelPerf = async () => {
-    const res = await evalModel(uid, "FoolsGold", model_name, features);
-    console.log(res);
+    const res = await evalModel(uid, "FoolsGold", model_name as string, features as (string | undefined)[]) as EvalModelResponse;
     setEvalResult(res.result);
     setFeedback(res.feedback);
   }
@@ -162,8 +188,8 @@ function TrainRun({ model_name, features, setFeedback }) {
     evalModelPerf();
     setFeedback("...");
   }
-  const [training, setTraining] = useState(false);
-  const [running, setRunning] = useState(false);
+  const [training, setTraining] = useState<Boolean>(false);
+  const [running, setRunning] = useState<Boolean>(false);
   
   return (
     <div className="w-1/3 h-full ml-1 border-2 border-slate-300 rounded-lg ">
@@ -201,7 +227,7 @@ function TrainRun({ model_name, features, setFeedback }) {
           
           <Button colorScheme="white" className="mr-3 hover:bg-gray-300 border-blue-800 border-2" onClick={async () => {
             setTraining(true);
-            trainModel(uid, "FoolsGold", model_name, features);
+            trainModel(uid, "FoolsGold", model_name as string, features as (string | undefined)[]);
             await new Promise( res => setTimeout(res, 1000));
             setTraining(false);
           }}>
@@ -209,11 +235,12 @@ function TrainRun({ model_name, features, setFeedback }) {
             <Text className="text-blue-800 font-signika">Train Model</Text>}</Button>
           <Button colorScheme="white" onClick={async () => {
             setRunning(true);
-            await evalAndFeedBack();
+            evalAndFeedBack();
             setRunning(false);
           }} className="hover:bg-gray-300 border-blue-800 border-2">
 {running ? <Text className="text-blue-800 font-signika">Loading...</Text> : 
-            <Text className="text-blue-800 font-signika">Run Model</Text>}          </Button>
+            <Text className="text-blue-800 font-signika">Run Model</Text>}          
+            </Button>
         </div>
       </CardBody>
     </Card >
@@ -221,7 +248,11 @@ function TrainRun({ model_name, features, setFeedback }) {
   );
 }
 
-function FeedbackBar({feedback}) {
+interface FeedbackBarProps {
+  feedback: string;
+};
+
+const FeedbackBar: FC<FeedbackBarProps> = ({feedback}) => {
   return (
     <div className="w-full h-full ml-3 mt-2 border-slate-300 border-2 rounded-lg">
     <Card className="h-full">
@@ -284,7 +315,12 @@ This adventure is not just about finding treasure; it's about using your brain, 
   );
 }
 
-function DnDBar({availableModels, availableFeatures}) {
+interface DnDBarProps {
+  availableModels: any[];
+  availableFeatures: any[];
+};
+
+const DnDBar: FC<DnDBarProps> = ({availableModels, availableFeatures}) => {
   return (
     <Tabs isFitted variant='unstyled' className="w-2/3 border-2 ml-3 border-slate-300 mt-2 rounded-lg">
       < TabList >
@@ -316,23 +352,22 @@ function DnDBar({availableModels, availableFeatures}) {
               console.log("model:", model)
               return (
                 <GridItem key={model} rowSpan={1} colSpan={1}>
-                  <ModelOption key={model} type={model}/>
+                  <ModelOption key={model} type={model} removeModel={undefined}/>
                 </GridItem>
               )
             })}
           </Grid>
         </TabPanel>
-        <TabPanel>
-          <p>two!</p>
-        </TabPanel>
-        <TabPanel>
-          <p>three!</p>
-        </TabPanel>
       </TabPanels>
     </Tabs >);
 }
 
-function ModelOption({ type, removeModel}) {
+interface ModelOptionProps {
+  type: UniqueIdentifier | string;
+  removeModel: any;
+};
+
+const ModelOption: FC<ModelOptionProps> = ({ type, removeModel }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: type,
   });
@@ -360,7 +395,12 @@ function ModelOption({ type, removeModel}) {
   );
 }
 
-function FeatureOption({ type }) {
+
+interface FeatureOptionProps {
+  type: UniqueIdentifier;
+};
+
+const FeatureOption: FC<FeatureOptionProps> = ({ type }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: type,
   });
@@ -388,22 +428,22 @@ function FeatureOption({ type }) {
 // "shape": shapes,
 // "texture": textures,
 
-const modelOptions = ["Decision Tree", "Logistic Regression", "K-Nearest Neighbors"];
-const modelBlurbs = ["Decision trees are like playing a game of \"20 Questions\" to make a choice or prediction. Starting with a big question at the top, each answer leads you down different paths with more questions until you reach the final decision at the bottom.", "Logistic regression is a math tool that helps us predict the chance of something happening (like winning a game) based on certain factors (like team skill levels). It works by taking our information and crunching the numbers to give a \"yes or no\" answer, sort of like making an educated guess.",
+const modelOptions: UniqueIdentifier[] = ["Decision Tree", "Logistic Regression", "K-Nearest Neighbors"];
+const modelBlurbs: string[] = ["Decision trees are like playing a game of \"20 Questions\" to make a choice or prediction. Starting with a big question at the top, each answer leads you down different paths with more questions until you reach the final decision at the bottom.", "Logistic regression is a math tool that helps us predict the chance of something happening (like winning a game) based on certain factors (like team skill levels). It works by taking our information and crunching the numbers to give a \"yes or no\" answer, sort of like making an educated guess.",
 "KNN, or K-Nearest Neighbors, is like making friends based on similarities. If you want to know if you'll like a new game, you see what the closest (most similar) games you already like suggest about it, using the opinions of the \"nearest\" few to make your decision."]
-const features = ["Conductivity", "Density", "Hardness", "Shape", "Shininess", "Texture"];
+const features: UniqueIdentifier[] = ["Conductivity", "Density", "Hardness", "Shape", "Shininess", "Texture"];
 
 export function Level() {
   // const [isDroppedModel, setIsDroppedModel] = useState(false);
-  const [activeModelId, setActiveModelId] = useState(null);
-  const [model, setModel] = useState(null);
-  const [availableModels, setAvailableModels] = useState([...modelOptions]);
+  const [activeModelId, setActiveModelId] = useState<UniqueIdentifier | null>(null);
+  const [model, setModel] = useState<UniqueIdentifier | null>(null);
+  const [availableModels, setAvailableModels] = useState<(UniqueIdentifier | null)[]>([...modelOptions]);
   // const [isDroppedFeature, setIsDroppedFeature] = useState(false);
-  const [activeFeatureId, setActiveFeatureId] = useState(null);
-  const [activeFeatures, setActiveFeatures] = useState([]);
-  const [availableFeatures, setAvailableFeatures] = useState([...features]);
-  const [feedback, setFeedback] = useState("");
-  function handleDragEnd(event) {
+  const [activeFeatureId, setActiveFeatureId] = useState<UniqueIdentifier | null>(null);
+  const [activeFeatures, setActiveFeatures] = useState<UniqueIdentifier[]>([]);
+  const [availableFeatures, setAvailableFeatures] = useState<UniqueIdentifier[]>([...features]);
+  const [feedback, setFeedback] = useState<string>("");
+  function handleDragEnd(event: DragEndEvent) {
     if (event.over && event.over.id === 'model-droppable' && modelOptions.includes(event.active.id)) {
       console.log("model dropped", event.active.id);
       if(activeModelId !== null && activeModelId !== event.active.id){
@@ -449,7 +489,7 @@ export function Level() {
       <div className='w-full h-2/3 inline-flex'>
         <Box display="flex" alignItems="center" className='m-0 w-full'>
           <Data activeFeatures={activeFeatures} setActiveFeatures={setActiveFeatures} availableFeatures={availableFeatures} setAvailableFeatures={setAvailableFeatures}/>
-          <Model activeModelId={activeModelId} setModel={setModel} setActiveModelId={setActiveModelId} availableModels={availableModels} setAvailableModels={setAvailableModels}/>
+          <Model activeModelId={activeModelId} setActiveModelId={setActiveModelId} availableModels={availableModels} setAvailableModels={setAvailableModels}/>
           <TrainRun model_name={model} features={activeFeatures} setFeedback={setFeedback}/>
         </Box>
       </div>

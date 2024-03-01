@@ -2,7 +2,6 @@ import './App.css';
 import { ChakraProvider, } from '@chakra-ui/react'
 import { BrowserRouter as Router, Route, Routes, Link} from 'react-router-dom';
 import LandingPage from './views/landing_page';
-import lessonOne from './views/lesson_one';
 import { Button, Stack, ButtonGroup} from '@chakra-ui/react'
 import { Heading } from '@chakra-ui/react'
 import { extendTheme, Text } from '@chakra-ui/react'
@@ -29,7 +28,7 @@ function App() {
           <ButtonGroup spacing={4}>
             <Link to="/sandbox">
               <Button colorScheme='white' className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
-              <Text to="/sandbox" className="text-blue-800 font-lilitaOne">Sandbox</Text>
+              <Link to="/sandbox" className="text-blue-800 font-lilitaOne">Sandbox</Link>
             </Button>
             </Link>
             <Button colorScheme='white'className="hover:bg-gray-300 border-blue-800 border-2 border-b-4 " variant='solid'>
@@ -41,7 +40,7 @@ function App() {
           </ButtonGroup>
         </Stack>
           <Routes>
-            <Route exact path="/" Component={LandingPage}/>
+            <Route path="/" Component={LandingPage}/>
             <Route path="/lessonOne" Component={Level}/>
             <Route path="/sandbox" Component={sandbox}/>
           </Routes>
